@@ -6,13 +6,14 @@ import type { CharacterCustomizationData } from "@/types/game";
 
 interface CharacterCustomizationProps {
   onComplete: (data: CharacterCustomizationData) => void;
+  initialData?: CharacterCustomizationData;
 }
 
-const CharacterCustomization = ({ onComplete }: CharacterCustomizationProps) => {
-  const [bodyColor, setBodyColor] = useState("#3498db");
-  const [skinColor, setSkinColor] = useState("#ffdbac");
-  const [height, setHeight] = useState(1.0);
-  const [width, setWidth] = useState(0.8);
+const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizationProps) => {
+  const [bodyColor, setBodyColor] = useState(initialData?.body_color || "#3498db");
+  const [skinColor, setSkinColor] = useState(initialData?.skin_color || "#ffdbac");
+  const [height, setHeight] = useState(initialData?.height || 1.0);
+  const [width, setWidth] = useState(initialData?.width || 0.8);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);

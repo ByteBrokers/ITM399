@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import GameUI from "./GameUI";
 import DataPanel from "./DataPanel";
 import InteractionPrompt from "./InteractionPrompt";
+import CharacterCustomization from "./CharacterCustomization";
 import type { CharacterCustomizationData, GameStateData, Company } from "@/types/game";
 
 interface Game3DProps {
@@ -49,6 +50,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const containerRef = useRef<HTMLDivElement>(null);
   const [gameState, setGameState] = useState(initialGameState);
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
+  const [isEditingCharacter, setIsEditingCharacter] = useState(false);
+  const [currentCharacterData, setCurrentCharacterData] = useState(characterData);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -89,6 +92,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
   const initThreeJS = () => {
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb); // Blue sky
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -214,25 +218,25 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     benchPositions.forEach(pos => {
       const bench = new THREE.Group();
 
-      // Seat (lower and more proportional)
-      const seatGeometry = new THREE.BoxGeometry(1.8, 0.15, 0.5);
+      // Seat (proper size)
+      const seatGeometry = new THREE.BoxGeometry(3, 0.3, 1.2);
       const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
       const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-      seat.position.y = 0.4;
+      seat.position.y = 1;
       bench.add(seat);
 
-      // Backrest (proportional)
-      const backGeometry = new THREE.BoxGeometry(1.8, 0.7, 0.08);
+      // Backrest (proper size)
+      const backGeometry = new THREE.BoxGeometry(3, 1.5, 0.15);
       const back = new THREE.Mesh(backGeometry, seatMaterial);
-      back.position.set(0, 0.75, -0.2);
+      back.position.set(0, 1.8, -0.5);
       bench.add(back);
 
-      // Legs (thinner and shorter)
+      // Legs (proper size)
       for (let i = 0; i < 4; i++) {
-        const legGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.4);
+        const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1);
         const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
         const leg = new THREE.Mesh(legGeometry, legMaterial);
-        leg.position.set(i < 2 ? -0.7 : 0.7, 0.2, i % 2 === 0 ? 0.15 : -0.15);
+        leg.position.set(i < 2 ? -1.2 : 1.2, 0.5, i % 2 === 0 ? 0.4 : -0.4);
         bench.add(leg);
       }
 
@@ -313,28 +317,62 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const createPlayer = () => {
     const player = new THREE.Group();
 
-    const bodyColor = parseInt(characterData.body_color.replace("#", "0x"));
-    const skinColor = parseInt(characterData.skin_color.replace("#", "0x"));
+    const bodyColor = parseInt(currentCharacterData.body_color.replace("#", "0x"));
+    const skinColor = parseInt(currentCharacterData.skin_color.replace("#", "0x"));
 
     const bodyGeometry = new THREE.CylinderGeometry(
-      characterData.width,
-      characterData.width,
-      3 * characterData.height
+      currentCharacterData.width,
+      currentCharacterData.width,
+      3 * currentCharacterData.height
     );
     const bodyMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1.5 * characterData.height;
+    body.position.y = 1.5 * currentCharacterData.height;
     body.castShadow = true;
     player.add(body);
 
-    const headGeometry = new THREE.SphereGeometry(0.6 * characterData.height);
+    const headGeometry = new THREE.SphereGeometry(0.6 * currentCharacterData.height);
     const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 3.6 * characterData.height;
+    head.position.y = 3.6 * currentCharacterData.height;
     head.castShadow = true;
     player.add(head);
 
     return player;
+  };
+
+  const updatePlayerAppearance = () => {
+    if (playerRef.current && sceneRef.current) {
+      const oldPosition = playerRef.current.position.clone();
+      sceneRef.current.remove(playerRef.current);
+      const newPlayer = createPlayer();
+      newPlayer.position.copy(oldPosition);
+      sceneRef.current.add(newPlayer);
+      playerRef.current = newPlayer;
+    }
+  };
+
+  const handleCharacterUpdate = async (data: CharacterCustomizationData) => {
+    setCurrentCharacterData(data);
+    
+    try {
+      await supabase
+        .from("character_customization")
+        .update({
+          height: data.height,
+          width: data.width,
+          body_color: data.body_color,
+          skin_color: data.skin_color,
+        })
+        .eq("user_id", userId);
+
+      toast.success("Character updated!");
+      setIsEditingCharacter(false);
+      updatePlayerAppearance();
+    } catch (error) {
+      console.error("Error updating character:", error);
+      toast.error("Failed to update character");
+    }
   };
 
   const createBuildings = (scene: THREE.Scene) => {
@@ -484,7 +522,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <div ref={containerRef} className="w-full h-full" />
-      <GameUI gameState={gameState} onLogout={onLogout} />
+      <GameUI gameState={gameState} onLogout={onLogout} onEditCharacter={() => setIsEditingCharacter(true)} />
       <DataPanel dataTypes={gameState.data_types} />
       {currentCompany && (
         <InteractionPrompt
@@ -493,6 +531,25 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           onSell={handleSellData}
           onClose={() => setCurrentCompany(null)}
         />
+      )}
+      {isEditingCharacter && (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="bg-background p-8 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Edit Character</h2>
+              <button
+                onClick={() => setIsEditingCharacter(false)}
+                className="text-muted-foreground hover:text-foreground text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <CharacterCustomization
+              initialData={currentCharacterData}
+              onComplete={handleCharacterUpdate}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
