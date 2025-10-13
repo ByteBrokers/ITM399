@@ -135,31 +135,51 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   };
 
   const createCityEnvironment = (scene: THREE.Scene) => {
-    // Create roads
-    const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+    // Create footpaths (narrower and more path-like)
+    const footpathMaterial = new THREE.MeshLambertMaterial({ color: 0x8b7355 });
     
-    // Main cross roads
-    const horizontalRoad = new THREE.Mesh(
-      new THREE.PlaneGeometry(100, 8),
-      roadMaterial
+    // Main cross footpaths
+    const horizontalPath = new THREE.Mesh(
+      new THREE.PlaneGeometry(120, 3),
+      footpathMaterial
     );
-    horizontalRoad.rotation.x = -Math.PI / 2;
-    horizontalRoad.position.y = 0.01;
-    scene.add(horizontalRoad);
+    horizontalPath.rotation.x = -Math.PI / 2;
+    horizontalPath.position.y = 0.01;
+    scene.add(horizontalPath);
 
-    const verticalRoad = new THREE.Mesh(
-      new THREE.PlaneGeometry(8, 100),
-      roadMaterial
+    const verticalPath = new THREE.Mesh(
+      new THREE.PlaneGeometry(3, 120),
+      footpathMaterial
     );
-    verticalRoad.rotation.x = -Math.PI / 2;
-    verticalRoad.position.y = 0.01;
-    scene.add(verticalRoad);
+    verticalPath.rotation.x = -Math.PI / 2;
+    verticalPath.position.y = 0.01;
+    scene.add(verticalPath);
+
+    // Additional connecting paths
+    const sidePaths = [
+      { x: -25, z: 0, rotation: 0, width: 3, length: 50 },
+      { x: 25, z: 0, rotation: 0, width: 3, length: 50 },
+      { x: 0, z: -25, rotation: Math.PI / 2, width: 3, length: 50 },
+      { x: 0, z: 25, rotation: Math.PI / 2, width: 3, length: 50 }
+    ];
+
+    sidePaths.forEach(path => {
+      const sidePath = new THREE.Mesh(
+        new THREE.PlaneGeometry(path.length, path.width),
+        footpathMaterial
+      );
+      sidePath.rotation.x = -Math.PI / 2;
+      sidePath.rotation.z = path.rotation;
+      sidePath.position.set(path.x, 0.01, path.z);
+      scene.add(sidePath);
+    });
 
     // Create trees
     const treePositions = [
       { x: -15, z: -15 }, { x: -15, z: 15 }, { x: 15, z: -15 }, { x: 15, z: 15 },
       { x: -35, z: -35 }, { x: -35, z: 35 }, { x: 35, z: -35 }, { x: 35, z: 35 },
-      { x: -40, z: 0 }, { x: 40, z: 0 }, { x: 0, z: -40 }, { x: 0, z: 40 }
+      { x: -40, z: 0 }, { x: 40, z: 0 }, { x: 0, z: -40 }, { x: 0, z: 40 },
+      { x: -20, z: -30 }, { x: 20, z: -30 }, { x: -20, z: 30 }, { x: 20, z: 30 }
     ];
 
     treePositions.forEach(pos => {
@@ -185,10 +205,81 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(tree);
     });
 
+    // Create benches
+    const benchPositions = [
+      { x: -8, z: -8 }, { x: 8, z: -8 }, { x: -8, z: 8 }, { x: 8, z: 8 },
+      { x: -18, z: 0 }, { x: 18, z: 0 }, { x: 0, z: -18 }, { x: 0, z: 18 }
+    ];
+
+    benchPositions.forEach(pos => {
+      const bench = new THREE.Group();
+
+      // Seat
+      const seatGeometry = new THREE.BoxGeometry(2, 0.2, 0.6);
+      const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+      const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+      seat.position.y = 0.5;
+      bench.add(seat);
+
+      // Backrest
+      const backGeometry = new THREE.BoxGeometry(2, 0.8, 0.1);
+      const back = new THREE.Mesh(backGeometry, seatMaterial);
+      back.position.set(0, 0.9, -0.25);
+      bench.add(back);
+
+      // Legs
+      for (let i = 0; i < 4; i++) {
+        const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+        const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
+        const leg = new THREE.Mesh(legGeometry, legMaterial);
+        leg.position.set(i < 2 ? -0.8 : 0.8, 0.25, i % 2 === 0 ? 0.2 : -0.2);
+        bench.add(leg);
+      }
+
+      bench.position.set(pos.x, 0, pos.z);
+      scene.add(bench);
+    });
+
+    // Create decorative small shops
+    const shopPositions = [
+      { x: -40, z: -15, color: 0xe6b800 },
+      { x: -40, z: 15, color: 0xcc7a00 },
+      { x: 40, z: -15, color: 0x006699 },
+      { x: 40, z: 15, color: 0x99004d },
+      { x: -15, z: -40, color: 0x009933 },
+      { x: 15, z: -40, color: 0x8b008b },
+      { x: -15, z: 40, color: 0xff6600 },
+      { x: 15, z: 40, color: 0x4d4d4d }
+    ];
+
+    shopPositions.forEach(pos => {
+      const shop = new THREE.Group();
+
+      // Building
+      const buildingGeometry = new THREE.BoxGeometry(6, 4, 5);
+      const buildingMaterial = new THREE.MeshLambertMaterial({ color: pos.color });
+      const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+      building.position.y = 2;
+      building.castShadow = true;
+      shop.add(building);
+
+      // Simple roof
+      const roofGeometry = new THREE.BoxGeometry(7, 0.5, 5.5);
+      const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
+      const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+      roof.position.y = 4.25;
+      roof.castShadow = true;
+      shop.add(roof);
+
+      shop.position.set(pos.x, 0, pos.z);
+      scene.add(shop);
+    });
+
     // Create lampposts
     const lamppostPositions = [
       { x: -5, z: -5 }, { x: -5, z: 5 }, { x: 5, z: -5 }, { x: 5, z: 5 },
-      { x: -15, z: 0 }, { x: 15, z: 0 }, { x: 0, z: -15 }, { x: 0, z: 15 }
+      { x: -15, z: 0 }, { x: 15, z: 0 }, { x: 0, z: -15 }, { x: 0, z: 15 },
+      { x: -25, z: -12 }, { x: 25, z: -12 }, { x: -25, z: 12 }, { x: 25, z: 12 }
     ];
 
     lamppostPositions.forEach(pos => {
@@ -297,16 +388,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
     if (playerRef.current && cameraRef.current) {
       const speed = 0.5;
-      if (keysRef.current["KeyW"] || keysRef.current["ArrowUp"]) {
+      if (keysRef.current["ArrowUp"]) {
         playerRef.current.position.z -= speed;
       }
-      if (keysRef.current["KeyS"] || keysRef.current["ArrowDown"]) {
+      if (keysRef.current["ArrowDown"]) {
         playerRef.current.position.z += speed;
       }
-      if (keysRef.current["KeyA"] || keysRef.current["ArrowLeft"]) {
+      if (keysRef.current["ArrowLeft"]) {
         playerRef.current.position.x -= speed;
       }
-      if (keysRef.current["KeyD"] || keysRef.current["ArrowRight"]) {
+      if (keysRef.current["ArrowRight"]) {
         playerRef.current.position.x += speed;
       }
 
