@@ -10,8 +10,11 @@ interface InteractionPromptProps {
 
 const InteractionPrompt = ({ company, dataTypes, onSell, onClose }: InteractionPromptProps) => {
   return (
-    <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-lg text-white p-6 rounded-xl min-w-[300px]">
-      <button onClick={onClose} className="absolute top-2 right-2 text-destructive hover:text-destructive/80">
+    <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-lg text-white p-6 rounded-xl min-w-[300px] z-50">
+      <button 
+        onClick={onClose} 
+        className="absolute top-2 right-2 text-white hover:text-destructive text-3xl leading-none font-bold cursor-pointer z-10 w-8 h-8 flex items-center justify-center"
+      >
         ×
       </button>
       <h3 className="text-xl font-bold mb-2">{company.name}</h3>

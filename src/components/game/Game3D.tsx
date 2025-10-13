@@ -115,6 +115,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     ground.receiveShadow = true;
     scene.add(ground);
 
+    createCityEnvironment(scene);
+
     const player = createPlayer();
     scene.add(player);
 
@@ -130,6 +132,91 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     playerRef.current = player;
 
     window.addEventListener("resize", handleResize);
+  };
+
+  const createCityEnvironment = (scene: THREE.Scene) => {
+    // Create roads
+    const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+    
+    // Main cross roads
+    const horizontalRoad = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 8),
+      roadMaterial
+    );
+    horizontalRoad.rotation.x = -Math.PI / 2;
+    horizontalRoad.position.y = 0.01;
+    scene.add(horizontalRoad);
+
+    const verticalRoad = new THREE.Mesh(
+      new THREE.PlaneGeometry(8, 100),
+      roadMaterial
+    );
+    verticalRoad.rotation.x = -Math.PI / 2;
+    verticalRoad.position.y = 0.01;
+    scene.add(verticalRoad);
+
+    // Create trees
+    const treePositions = [
+      { x: -15, z: -15 }, { x: -15, z: 15 }, { x: 15, z: -15 }, { x: 15, z: 15 },
+      { x: -35, z: -35 }, { x: -35, z: 35 }, { x: 35, z: -35 }, { x: 35, z: 35 },
+      { x: -40, z: 0 }, { x: 40, z: 0 }, { x: 0, z: -40 }, { x: 0, z: 40 }
+    ];
+
+    treePositions.forEach(pos => {
+      const tree = new THREE.Group();
+      
+      // Trunk
+      const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.4, 3);
+      const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+      const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+      trunk.position.y = 1.5;
+      trunk.castShadow = true;
+      tree.add(trunk);
+
+      // Foliage
+      const foliageGeometry = new THREE.SphereGeometry(2, 8, 8);
+      const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+      const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+      foliage.position.y = 4;
+      foliage.castShadow = true;
+      tree.add(foliage);
+
+      tree.position.set(pos.x, 0, pos.z);
+      scene.add(tree);
+    });
+
+    // Create lampposts
+    const lamppostPositions = [
+      { x: -5, z: -5 }, { x: -5, z: 5 }, { x: 5, z: -5 }, { x: 5, z: 5 },
+      { x: -15, z: 0 }, { x: 15, z: 0 }, { x: 0, z: -15 }, { x: 0, z: 15 }
+    ];
+
+    lamppostPositions.forEach(pos => {
+      const lamppost = new THREE.Group();
+
+      // Post
+      const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 5);
+      const postMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
+      const post = new THREE.Mesh(postGeometry, postMaterial);
+      post.position.y = 2.5;
+      post.castShadow = true;
+      lamppost.add(post);
+
+      // Light fixture
+      const lightGeometry = new THREE.SphereGeometry(0.3);
+      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff99 });
+      const light = new THREE.Mesh(lightGeometry, lightMaterial);
+      light.position.y = 5;
+      lamppost.add(light);
+
+      // Point light for illumination
+      const pointLight = new THREE.PointLight(0xffff99, 0.5, 10);
+      pointLight.position.y = 5;
+      lamppost.add(pointLight);
+
+      lamppost.position.set(pos.x, 0, pos.z);
+      scene.add(lamppost);
+    });
   };
 
   const createPlayer = () => {
