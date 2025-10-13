@@ -101,23 +101,66 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     );
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
     containerRef.current!.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(50, 50, 50);
-    directionalLight.castShadow = true;
     scene.add(directionalLight);
 
     const groundGeometry = new THREE.PlaneGeometry(200, 200);
     const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x3cb371 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
     scene.add(ground);
+
+    // ByteBrokers centerpiece
+    const createByteBrokerSign = () => {
+      const group = new THREE.Group();
+      
+      // Sign post
+      const postGeometry = new THREE.CylinderGeometry(0.2, 0.2, 8);
+      const postMaterial = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
+      const post = new THREE.Mesh(postGeometry, postMaterial);
+      post.position.y = 4;
+      group.add(post);
+      
+      // Sign board
+      const boardGeometry = new THREE.BoxGeometry(12, 3, 0.3);
+      const boardMaterial = new THREE.MeshLambertMaterial({ color: 0x2c3e50 });
+      const board = new THREE.Mesh(boardGeometry, boardMaterial);
+      board.position.y = 8.5;
+      group.add(board);
+      
+      // Create "ByteBrokers" text using canvas texture
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#00ff88';
+        ctx.font = 'bold 120px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ByteBrokers', canvas.width / 2, canvas.height / 2);
+      }
+      
+      const texture = new THREE.CanvasTexture(canvas);
+      const textMaterial = new THREE.MeshBasicMaterial({ map: texture });
+      const textBoard = new THREE.Mesh(boardGeometry, textMaterial);
+      textBoard.position.y = 8.5;
+      textBoard.position.z = 0.16;
+      group.add(textBoard);
+      
+      group.position.set(0, 0, 0);
+      return group;
+    };
+    
+    scene.add(createByteBrokerSign());
 
     createCityEnvironment(scene);
 
@@ -194,7 +237,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
       const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
       trunk.position.y = 4;
-      trunk.castShadow = true;
       tree.add(trunk);
 
       // Foliage (larger and higher)
@@ -202,7 +244,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
       const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
       foliage.position.y = 10;
-      foliage.castShadow = true;
       tree.add(foliage);
 
       tree.position.set(pos.x, 0, pos.z);
@@ -264,7 +305,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const buildingMaterial = new THREE.MeshLambertMaterial({ color: pos.color });
       const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
       building.position.y = 3;
-      building.castShadow = true;
       shop.add(building);
 
       // Simple roof
@@ -272,7 +312,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
       roof.position.y = 6.2;
-      roof.castShadow = true;
       shop.add(roof);
 
       shop.position.set(pos.x, 0, pos.z);
@@ -294,7 +333,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const postMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
       const post = new THREE.Mesh(postGeometry, postMaterial);
       post.position.y = 3;
-      post.castShadow = true;
       lamppost.add(post);
 
       // Light fixture
@@ -328,14 +366,12 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     const bodyMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
     body.position.y = 1.5 * currentCharacterData.height;
-    body.castShadow = true;
     player.add(body);
 
     const headGeometry = new THREE.SphereGeometry(0.6 * currentCharacterData.height);
     const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
     const head = new THREE.Mesh(headGeometry, headMaterial);
     head.position.y = 3.6 * currentCharacterData.height;
-    head.castShadow = true;
     player.add(head);
 
     return player;
@@ -392,7 +428,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const storeMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const store = new THREE.Mesh(storeGeometry, storeMaterial);
       store.position.y = 4;
-      store.castShadow = true;
       building.add(store);
 
       const roofGeometry = new THREE.ConeGeometry(8, 3, 4);
@@ -400,7 +435,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
       roof.position.y = 9.5;
       roof.rotation.y = Math.PI / 4;
-      roof.castShadow = true;
       building.add(roof);
 
       building.position.set(x, 0, z);

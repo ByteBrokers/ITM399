@@ -351,17 +351,6 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="email">Email address (optional):</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="your@email.com"
-                />
-              </div>
-
               <div className="bg-primary/10 p-6 rounded-lg">
                 <h3 className="font-bold mb-2">🎮 Ready to Enter the Data Marketplace!</h3>
                 <p className="text-sm text-muted-foreground">

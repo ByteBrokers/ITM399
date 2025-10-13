@@ -15,7 +15,7 @@ const GameUI = ({ gameState, onLogout, onEditCharacter }: GameUIProps) => {
         <div>Level: {gameState.level}</div>
         <div>Experience: {gameState.exp}</div>
         <div className="flex gap-2 mt-2">
-          <Button onClick={onEditCharacter} variant="outline" size="sm">
+          <Button onClick={onEditCharacter} variant="secondary" size="sm">
             Edit Character
           </Button>
           <Button onClick={onLogout} variant="destructive" size="sm">
