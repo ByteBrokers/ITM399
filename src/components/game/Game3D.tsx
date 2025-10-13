@@ -288,7 +288,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           coins: newCoins,
           exp: newGameState.exp,
           level: newLevel,
-          data_types: newDataTypes,
+          data_types: newDataTypes as any,
         })
         .eq("user_id", userId);
 
