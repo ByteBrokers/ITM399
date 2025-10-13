@@ -185,19 +185,19 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     treePositions.forEach(pos => {
       const tree = new THREE.Group();
       
-      // Trunk
-      const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.4, 3);
+      // Trunk (much taller)
+      const trunkGeometry = new THREE.CylinderGeometry(0.4, 0.5, 8);
       const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
       const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-      trunk.position.y = 1.5;
+      trunk.position.y = 4;
       trunk.castShadow = true;
       tree.add(trunk);
 
-      // Foliage
-      const foliageGeometry = new THREE.SphereGeometry(2, 8, 8);
+      // Foliage (larger and higher)
+      const foliageGeometry = new THREE.SphereGeometry(3, 8, 8);
       const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
       const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-      foliage.position.y = 4;
+      foliage.position.y = 10;
       foliage.castShadow = true;
       tree.add(foliage);
 
@@ -214,25 +214,25 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     benchPositions.forEach(pos => {
       const bench = new THREE.Group();
 
-      // Seat
-      const seatGeometry = new THREE.BoxGeometry(2, 0.2, 0.6);
+      // Seat (lower and more proportional)
+      const seatGeometry = new THREE.BoxGeometry(1.8, 0.15, 0.5);
       const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
       const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-      seat.position.y = 0.5;
+      seat.position.y = 0.4;
       bench.add(seat);
 
-      // Backrest
-      const backGeometry = new THREE.BoxGeometry(2, 0.8, 0.1);
+      // Backrest (proportional)
+      const backGeometry = new THREE.BoxGeometry(1.8, 0.7, 0.08);
       const back = new THREE.Mesh(backGeometry, seatMaterial);
-      back.position.set(0, 0.9, -0.25);
+      back.position.set(0, 0.75, -0.2);
       bench.add(back);
 
-      // Legs
+      // Legs (thinner and shorter)
       for (let i = 0; i < 4; i++) {
-        const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.5);
+        const legGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.4);
         const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
         const leg = new THREE.Mesh(legGeometry, legMaterial);
-        leg.position.set(i < 2 ? -0.8 : 0.8, 0.25, i % 2 === 0 ? 0.2 : -0.2);
+        leg.position.set(i < 2 ? -0.7 : 0.7, 0.2, i % 2 === 0 ? 0.15 : -0.15);
         bench.add(leg);
       }
 
@@ -255,19 +255,19 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     shopPositions.forEach(pos => {
       const shop = new THREE.Group();
 
-      // Building
-      const buildingGeometry = new THREE.BoxGeometry(6, 4, 5);
+      // Building (taller and more realistic)
+      const buildingGeometry = new THREE.BoxGeometry(6, 6, 5);
       const buildingMaterial = new THREE.MeshLambertMaterial({ color: pos.color });
       const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-      building.position.y = 2;
+      building.position.y = 3;
       building.castShadow = true;
       shop.add(building);
 
       // Simple roof
-      const roofGeometry = new THREE.BoxGeometry(7, 0.5, 5.5);
+      const roofGeometry = new THREE.BoxGeometry(6.5, 0.4, 5.5);
       const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-      roof.position.y = 4.25;
+      roof.position.y = 6.2;
       roof.castShadow = true;
       shop.add(roof);
 
@@ -285,24 +285,24 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     lamppostPositions.forEach(pos => {
       const lamppost = new THREE.Group();
 
-      // Post
-      const postGeometry = new THREE.CylinderGeometry(0.1, 0.1, 5);
+      // Post (taller)
+      const postGeometry = new THREE.CylinderGeometry(0.12, 0.12, 6);
       const postMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
       const post = new THREE.Mesh(postGeometry, postMaterial);
-      post.position.y = 2.5;
+      post.position.y = 3;
       post.castShadow = true;
       lamppost.add(post);
 
       // Light fixture
-      const lightGeometry = new THREE.SphereGeometry(0.3);
+      const lightGeometry = new THREE.SphereGeometry(0.35);
       const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff99 });
       const light = new THREE.Mesh(lightGeometry, lightMaterial);
-      light.position.y = 5;
+      light.position.y = 6;
       lamppost.add(light);
 
       // Point light for illumination
-      const pointLight = new THREE.PointLight(0xffff99, 0.5, 10);
-      pointLight.position.y = 5;
+      const pointLight = new THREE.PointLight(0xffff99, 0.5, 12);
+      pointLight.position.y = 6;
       lamppost.add(pointLight);
 
       lamppost.position.set(pos.x, 0, pos.z);
