@@ -406,41 +406,68 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(pathMesh);
     });
 
-    // Add logo to the scene (on the horizon)
+    // Add logo to the sky
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(logoImage, (texture) => {
       const logoMaterial = new THREE.MeshBasicMaterial({ 
         map: texture, 
         transparent: true,
+        opacity: 0.4,
         side: THREE.DoubleSide
       });
-      const logoGeometry = new THREE.PlaneGeometry(8, 12);
+      const logoGeometry = new THREE.PlaneGeometry(15, 22);
       const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
-      logoMesh.position.set(-45, 6, -45);
-      logoMesh.rotation.y = Math.PI / 4;
+      logoMesh.position.set(30, 35, -60);
+      logoMesh.rotation.y = Math.PI / 6;
       scene.add(logoMesh);
     });
 
-    // Create animated NPCs (people walking around)
+    // Create animated NPCs (people walking around) - scaled to realistic size
     for (let i = 0; i < 15; i++) {
       const npc = new THREE.Group();
       
-      // Body
-      const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1.2, 8);
+      // Body - scaled up to be proportionate
+      const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.6, 2.5, 8);
       const bodyColors = [0x1e40af, 0x7c3aed, 0x059669, 0xdc2626, 0xf59e0b];
       const bodyMaterial = new THREE.MeshLambertMaterial({ 
         color: bodyColors[Math.floor(Math.random() * bodyColors.length)] 
       });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 1.2;
+      body.position.y = 2.5;
       npc.add(body);
       
-      // Head
-      const headGeometry = new THREE.SphereGeometry(0.25, 8, 8);
+      // Head - scaled up proportionally
+      const headGeometry = new THREE.SphereGeometry(0.5, 8, 8);
       const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
       const head = new THREE.Mesh(headGeometry, headMaterial);
-      head.position.y = 2;
+      head.position.y = 4.2;
       npc.add(head);
+      
+      // Arms
+      const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1.8, 6);
+      const armMaterial = new THREE.MeshLambertMaterial({ color: bodyColors[Math.floor(Math.random() * bodyColors.length)] });
+      
+      const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+      leftArm.position.set(-0.7, 2.8, 0);
+      leftArm.rotation.z = 0.3;
+      npc.add(leftArm);
+      
+      const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+      rightArm.position.set(0.7, 2.8, 0);
+      rightArm.rotation.z = -0.3;
+      npc.add(rightArm);
+      
+      // Legs
+      const legGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 6);
+      const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c3e50 });
+      
+      const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+      leftLeg.position.set(-0.3, 1, 0);
+      npc.add(leftLeg);
+      
+      const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+      rightLeg.position.set(0.3, 1, 0);
+      npc.add(rightLeg);
       
       // Random starting position
       npc.position.set(
