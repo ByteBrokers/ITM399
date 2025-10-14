@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { supabase } from "@/integrations/supabase/client";
+import logoImage from '@/assets/bytebrokerslogo1.png';
 import { toast } from "sonner";
 import GameUI from "./GameUI";
 import DataPanel from "./DataPanel";
@@ -58,6 +59,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const playerRef = useRef<THREE.Group | null>(null);
   const buildingsRef = useRef<THREE.Group[]>([]);
+  const npcsRef = useRef<Array<{ mesh: THREE.Group; speed: number; direction: THREE.Vector3; nextTurn: number }>>([]);
   const keysRef = useRef<Record<string, boolean>>({});
   const animationIdRef = useRef<number>();
 
@@ -127,12 +129,20 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       post.position.y = 4;
       group.add(post);
       
-      // Sign board
+      // Sign board with gradient effect (blue to purple)
       const boardGeometry = new THREE.BoxGeometry(12, 3, 0.3);
-      const boardMaterial = new THREE.MeshLambertMaterial({ color: 0x2c3e50 });
-      const board = new THREE.Mesh(boardGeometry, boardMaterial);
-      board.position.y = 8.5;
-      group.add(board);
+      const boardMaterialBlue = new THREE.MeshLambertMaterial({ color: 0x3b82f6 });
+      const boardMaterialPurple = new THREE.MeshLambertMaterial({ color: 0x9333ea });
+      
+      // Create left half (blue)
+      const boardLeft = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 0.3), boardMaterialBlue);
+      boardLeft.position.set(-3, 8.5, 0);
+      group.add(boardLeft);
+      
+      // Create right half (purple)
+      const boardRight = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 0.3), boardMaterialPurple);
+      boardRight.position.set(3, 8.5, 0);
+      group.add(boardRight);
       
       // Create "ByteBrokers" text using canvas texture
       const canvas = document.createElement('canvas');
@@ -140,9 +150,13 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       canvas.height = 256;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.fillStyle = '#2c3e50';
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#9333ea');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#00ff88';
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 120px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -392,6 +406,62 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(pathMesh);
     });
 
+    // Add logo to the scene (on the horizon)
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(logoImage, (texture) => {
+      const logoMaterial = new THREE.MeshBasicMaterial({ 
+        map: texture, 
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      const logoGeometry = new THREE.PlaneGeometry(8, 12);
+      const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
+      logoMesh.position.set(-45, 6, -45);
+      logoMesh.rotation.y = Math.PI / 4;
+      scene.add(logoMesh);
+    });
+
+    // Create animated NPCs (people walking around)
+    for (let i = 0; i < 15; i++) {
+      const npc = new THREE.Group();
+      
+      // Body
+      const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1.2, 8);
+      const bodyColors = [0x1e40af, 0x7c3aed, 0x059669, 0xdc2626, 0xf59e0b];
+      const bodyMaterial = new THREE.MeshLambertMaterial({ 
+        color: bodyColors[Math.floor(Math.random() * bodyColors.length)] 
+      });
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      body.position.y = 1.2;
+      npc.add(body);
+      
+      // Head
+      const headGeometry = new THREE.SphereGeometry(0.25, 8, 8);
+      const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
+      const head = new THREE.Mesh(headGeometry, headMaterial);
+      head.position.y = 2;
+      npc.add(head);
+      
+      // Random starting position
+      npc.position.set(
+        Math.random() * 60 - 30,
+        0,
+        Math.random() * 60 - 30
+      );
+      
+      scene.add(npc);
+      npcsRef.current.push({
+        mesh: npc,
+        speed: 0.02 + Math.random() * 0.03,
+        direction: new THREE.Vector3(
+          Math.random() - 0.5,
+          0,
+          Math.random() - 0.5
+        ).normalize(),
+        nextTurn: Math.random() * 300 + 100
+      });
+    }
+
     // Create decorative small shops
     const shopPositions = [
       { x: -40, z: -15, color: 0xe6b800 },
@@ -590,6 +660,31 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
       checkBuildingProximity();
     }
+
+    // Animate NPCs
+    npcsRef.current.forEach(npc => {
+      // Move NPC
+      npc.mesh.position.add(npc.direction.clone().multiplyScalar(npc.speed));
+      
+      // Make NPC face movement direction
+      npc.mesh.rotation.y = Math.atan2(npc.direction.x, npc.direction.z);
+      
+      // Bobbing animation for walking effect
+      npc.mesh.position.y = Math.abs(Math.sin(Date.now() * 0.01 * npc.speed * 50)) * 0.1;
+      
+      // Change direction occasionally or when hitting boundaries
+      npc.nextTurn--;
+      if (npc.nextTurn <= 0 || 
+          Math.abs(npc.mesh.position.x) > 40 || 
+          Math.abs(npc.mesh.position.z) > 40) {
+        npc.direction = new THREE.Vector3(
+          Math.random() - 0.5,
+          0,
+          Math.random() - 0.5
+        ).normalize();
+        npc.nextTurn = Math.random() * 300 + 100;
+      }
+    });
 
     if (sceneRef.current && cameraRef.current && rendererRef.current) {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
