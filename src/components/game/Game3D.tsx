@@ -61,6 +61,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const buildingsRef = useRef<THREE.Group[]>([]);
   const npcsRef = useRef<Array<{ mesh: THREE.Group; speed: number; direction: THREE.Vector3; nextTurn: number }>>([]);
   const keysRef = useRef<Record<string, boolean>>({});
+  const mouseRef = useRef({ isDragging: false, previousX: 0, previousY: 0 });
+  const cameraAngleRef = useRef({ horizontal: 0, vertical: 0.3 });
   const animationIdRef = useRef<number>();
 
   useEffect(() => {
@@ -76,8 +78,37 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       keysRef.current[e.code] = false;
     };
 
+    const handleMouseDown = (e: MouseEvent) => {
+      mouseRef.current.isDragging = true;
+      mouseRef.current.previousX = e.clientX;
+      mouseRef.current.previousY = e.clientY;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (mouseRef.current.isDragging) {
+        const deltaX = e.clientX - mouseRef.current.previousX;
+        const deltaY = e.clientY - mouseRef.current.previousY;
+
+        cameraAngleRef.current.horizontal -= deltaX * 0.005;
+        cameraAngleRef.current.vertical -= deltaY * 0.005;
+        
+        // Clamp vertical angle
+        cameraAngleRef.current.vertical = Math.max(-Math.PI / 3, Math.min(Math.PI / 2, cameraAngleRef.current.vertical));
+
+        mouseRef.current.previousX = e.clientX;
+        mouseRef.current.previousY = e.clientY;
+      }
+    };
+
+    const handleMouseUp = () => {
+      mouseRef.current.isDragging = false;
+    };
+
     document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", handleKeyUp);
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       if (animationIdRef.current) {
@@ -85,6 +116,9 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       }
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", handleKeyUp);
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
       if (rendererRef.current && containerRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
@@ -443,32 +477,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       head.position.y = 4.2;
       npc.add(head);
       
-      // Arms
-      const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1.8, 6);
-      const armMaterial = new THREE.MeshLambertMaterial({ color: bodyColors[Math.floor(Math.random() * bodyColors.length)] });
-      
-      const leftArm = new THREE.Mesh(armGeometry, armMaterial);
-      leftArm.position.set(-0.7, 2.8, 0);
-      leftArm.rotation.z = 0.3;
-      npc.add(leftArm);
-      
-      const rightArm = new THREE.Mesh(armGeometry, armMaterial);
-      rightArm.position.set(0.7, 2.8, 0);
-      rightArm.rotation.z = -0.3;
-      npc.add(rightArm);
-      
-      // Legs
-      const legGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 6);
-      const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c3e50 });
-      
-      const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-      leftLeg.position.set(-0.3, 1, 0);
-      npc.add(leftLeg);
-      
-      const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-      rightLeg.position.set(0.3, 1, 0);
-      npc.add(rightLeg);
-      
       // Random starting position
       npc.position.set(
         Math.random() * 60 - 30,
@@ -679,6 +687,21 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
       cameraRef.current.position.x = playerRef.current.position.x;
       cameraRef.current.position.z = playerRef.current.position.z + 20;
+      
+      // Apply camera angles for mouse look
+      const distance = 20;
+      const cameraOffset = new THREE.Vector3(
+        Math.sin(cameraAngleRef.current.horizontal) * distance * Math.cos(cameraAngleRef.current.vertical),
+        Math.sin(cameraAngleRef.current.vertical) * distance + 15,
+        Math.cos(cameraAngleRef.current.horizontal) * distance * Math.cos(cameraAngleRef.current.vertical)
+      );
+      
+      cameraRef.current.position.set(
+        playerRef.current.position.x + cameraOffset.x,
+        cameraOffset.y,
+        playerRef.current.position.z + cameraOffset.z
+      );
+      
       cameraRef.current.lookAt(
         playerRef.current.position.x,
         playerRef.current.position.y + 5,
