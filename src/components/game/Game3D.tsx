@@ -269,11 +269,12 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(sidePath);
     });
 
-    // Create trees
+    // Create trees (positioned away from footpaths)
     const treePositions = [
       { x: -15, z: -15 }, { x: -15, z: 15 }, { x: 15, z: -15 }, { x: 15, z: 15 },
       { x: -35, z: -35 }, { x: -35, z: 35 }, { x: 35, z: -35 }, { x: 35, z: 35 },
-      { x: -40, z: 0 }, { x: 40, z: 0 }, { x: 0, z: -40 }, { x: 0, z: 40 },
+      { x: -40, z: -8 }, { x: 40, z: -8 }, { x: -8, z: -40 }, { x: 8, z: -40 },
+      { x: -40, z: 8 }, { x: 40, z: 8 }, { x: 8, z: 40 }, { x: -8, z: 40 },
       { x: -20, z: -30 }, { x: 20, z: -30 }, { x: -20, z: 30 }, { x: 20, z: 30 }
     ];
 
@@ -440,7 +441,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(pathMesh);
     });
 
-    // Add logo to the sky
+    // Add logo to the sky (parallel to user at startup)
     const textureLoader = new THREE.TextureLoader();
     textureLoader.load(logoImage, (texture) => {
       const logoMaterial = new THREE.MeshBasicMaterial({ 
@@ -451,8 +452,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       });
       const logoGeometry = new THREE.PlaneGeometry(15, 22);
       const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
-      logoMesh.position.set(30, 35, -60);
-      logoMesh.rotation.y = Math.PI / 6;
+      logoMesh.position.set(0, 35, -60); // Centered in front of user
+      logoMesh.rotation.y = 0; // Facing the user
       scene.add(logoMesh);
     });
 
@@ -467,14 +468,14 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         color: bodyColors[Math.floor(Math.random() * bodyColors.length)] 
       });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 2.5;
+      body.position.y = 1.25; // Adjusted so body sits on ground
       npc.add(body);
       
       // Head - scaled up proportionally
       const headGeometry = new THREE.SphereGeometry(0.5, 8, 8);
       const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
       const head = new THREE.Mesh(headGeometry, headMaterial);
-      head.position.y = 4.2;
+      head.position.y = 3; // Adjusted to sit on top of body
       npc.add(head);
       
       // Random starting position
@@ -719,8 +720,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       // Make NPC face movement direction
       npc.mesh.rotation.y = Math.atan2(npc.direction.x, npc.direction.z);
       
-      // Bobbing animation for walking effect
-      npc.mesh.position.y = Math.abs(Math.sin(Date.now() * 0.01 * npc.speed * 50)) * 0.1;
+      // Bobbing animation for walking effect (keeping NPCs grounded)
+      npc.mesh.position.y = Math.abs(Math.sin(Date.now() * 0.01 * npc.speed * 50)) * 0.05;
       
       // Change direction occasionally or when hitting boundaries
       npc.nextTurn--;
