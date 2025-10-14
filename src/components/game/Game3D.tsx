@@ -250,10 +250,13 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(tree);
     });
 
-    // Create benches
+    // Create benches - more scattered around
     const benchPositions = [
       { x: -8, z: -8 }, { x: 8, z: -8 }, { x: -8, z: 8 }, { x: 8, z: 8 },
-      { x: -18, z: 0 }, { x: 18, z: 0 }, { x: 0, z: -18 }, { x: 0, z: 18 }
+      { x: -18, z: 0 }, { x: 18, z: 0 }, { x: 0, z: -18 }, { x: 0, z: 18 },
+      { x: -30, z: -10 }, { x: 30, z: -10 }, { x: -30, z: 10 }, { x: 30, z: 10 },
+      { x: -10, z: -30 }, { x: 10, z: -30 }, { x: -10, z: 30 }, { x: 10, z: 30 },
+      { x: -22, z: -22 }, { x: 22, z: -22 }, { x: -22, z: 22 }, { x: 22, z: 22 }
     ];
 
     benchPositions.forEach(pos => {
@@ -283,6 +286,110 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
       bench.position.set(pos.x, 0, pos.z);
       scene.add(bench);
+    });
+
+    // Create bushes
+    const bushPositions = [
+      { x: -12, z: -12 }, { x: 12, z: -12 }, { x: -12, z: 12 }, { x: 12, z: 12 },
+      { x: -25, z: -5 }, { x: 25, z: -5 }, { x: -25, z: 5 }, { x: 25, z: 5 },
+      { x: -5, z: -25 }, { x: 5, z: -25 }, { x: -5, z: 25 }, { x: 5, z: 25 },
+      { x: -35, z: -20 }, { x: 35, z: -20 }, { x: -35, z: 20 }, { x: 35, z: 20 },
+      { x: -20, z: -35 }, { x: 20, z: -35 }, { x: -20, z: 35 }, { x: 20, z: 35 }
+    ];
+
+    bushPositions.forEach(pos => {
+      const bush = new THREE.Group();
+      
+      // Main bush body
+      const bushGeometry = new THREE.SphereGeometry(1.2, 6, 6);
+      const bushMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5016 });
+      const bushMesh = new THREE.Mesh(bushGeometry, bushMaterial);
+      bushMesh.position.y = 0.8;
+      bushMesh.scale.set(1, 0.8, 1);
+      bush.add(bushMesh);
+      
+      // Add smaller spheres for texture
+      for (let i = 0; i < 3; i++) {
+        const smallBush = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 5, 5),
+          new THREE.MeshLambertMaterial({ color: 0x3a6b1f })
+        );
+        const angle = (i / 3) * Math.PI * 2;
+        smallBush.position.set(
+          Math.cos(angle) * 0.7,
+          0.9,
+          Math.sin(angle) * 0.7
+        );
+        bush.add(smallBush);
+      }
+      
+      bush.position.set(pos.x, 0, pos.z);
+      scene.add(bush);
+    });
+
+    // Create decorative plants
+    const plantPositions = [
+      { x: -6, z: -6 }, { x: 6, z: 6 }, { x: -6, z: 6 }, { x: 6, z: -6 },
+      { x: -14, z: -8 }, { x: 14, z: -8 }, { x: -14, z: 8 }, { x: 14, z: 8 },
+      { x: -8, z: -14 }, { x: 8, z: -14 }, { x: -8, z: 14 }, { x: 8, z: 14 },
+      { x: -28, z: -18 }, { x: 28, z: -18 }, { x: -28, z: 18 }, { x: 28, z: 18 }
+    ];
+
+    plantPositions.forEach(pos => {
+      const plant = new THREE.Group();
+      
+      // Pot
+      const potGeometry = new THREE.CylinderGeometry(0.3, 0.25, 0.4, 8);
+      const potMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+      const pot = new THREE.Mesh(potGeometry, potMaterial);
+      pot.position.y = 0.2;
+      plant.add(pot);
+      
+      // Leaves
+      for (let i = 0; i < 5; i++) {
+        const leafGeometry = new THREE.ConeGeometry(0.15, 0.8, 4);
+        const leafMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+        const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+        const angle = (i / 5) * Math.PI * 2;
+        leaf.position.set(
+          Math.cos(angle) * 0.2,
+          0.6 + Math.random() * 0.3,
+          Math.sin(angle) * 0.2
+        );
+        leaf.rotation.z = Math.PI / 6;
+        plant.add(leaf);
+      }
+      
+      plant.position.set(pos.x, 0, pos.z);
+      scene.add(plant);
+    });
+
+    // Add paths leading directly to marketplaces
+    const marketplacePaths = [
+      { startX: 0, startZ: 0, endX: -25, endZ: -25 }, // Top-left marketplace
+      { startX: 0, startZ: 0, endX: 25, endZ: -25 },  // Top-right marketplace
+      { startX: 0, startZ: 0, endX: -25, endZ: 25 },  // Bottom-left marketplace
+      { startX: 0, startZ: 0, endX: 25, endZ: 25 }    // Bottom-right marketplace
+    ];
+
+    marketplacePaths.forEach(path => {
+      const deltaX = path.endX - path.startX;
+      const deltaZ = path.endZ - path.startZ;
+      const length = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+      const angle = Math.atan2(deltaZ, deltaX);
+      
+      const pathMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(length, 2.5),
+        footpathMaterial
+      );
+      pathMesh.rotation.x = -Math.PI / 2;
+      pathMesh.rotation.z = -angle;
+      pathMesh.position.set(
+        (path.startX + path.endX) / 2,
+        0.01,
+        (path.startZ + path.endZ) / 2
+      );
+      scene.add(pathMesh);
     });
 
     // Create decorative small shops
