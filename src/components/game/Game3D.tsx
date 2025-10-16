@@ -639,18 +639,68 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const building = new THREE.Group();
       const company = companies[companyIndex];
 
-      const storeGeometry = new THREE.BoxGeometry(12, 8, 10);
+      // Make store building taller and more distinctive
+      const storeGeometry = new THREE.BoxGeometry(12, 12, 10);
       const storeMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const store = new THREE.Mesh(storeGeometry, storeMaterial);
-      store.position.y = 4;
+      store.position.y = 6;
       building.add(store);
 
-      const roofGeometry = new THREE.ConeGeometry(8, 3, 4);
-      const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+      // Add glowing outline effect
+      const outlineGeometry = new THREE.BoxGeometry(12.5, 12.5, 10.5);
+      const outlineMaterial = new THREE.MeshBasicMaterial({ 
+        color: company.color, 
+        transparent: true, 
+        opacity: 0.3,
+        side: THREE.BackSide 
+      });
+      const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+      outline.position.y = 6;
+      building.add(outline);
+
+      // Add company sign above entrance
+      const signGeometry = new THREE.BoxGeometry(8, 2, 0.5);
+      const signMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+      const sign = new THREE.Mesh(signGeometry, signMaterial);
+      sign.position.set(0, 1.5, 5.5);
+      building.add(sign);
+
+      // Add text to sign (using simple geometry)
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = company.color.toString(16).padStart(6, '0');
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 60px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(company.name, canvas.width / 2, canvas.height / 2);
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      const textMaterial = new THREE.MeshBasicMaterial({ map: texture });
+      const textGeometry = new THREE.PlaneGeometry(8, 2);
+      const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+      textMesh.position.set(0, 1.5, 5.51);
+      building.add(textMesh);
+
+      // Different colored roof
+      const roofGeometry = new THREE.ConeGeometry(9, 4, 4);
+      const roofMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-      roof.position.y = 9.5;
+      roof.position.y = 14;
       roof.rotation.y = Math.PI / 4;
       building.add(roof);
+
+      // Add rotating beacon on top
+      const beaconGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8);
+      const beaconMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+      const beacon = new THREE.Mesh(beaconGeometry, beaconMaterial);
+      beacon.position.y = 15.5;
+      beacon.userData.isBeacon = true;
+      building.add(beacon);
 
       building.position.set(x, 0, z);
       building.userData = company;
@@ -739,6 +789,15 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       }
     });
 
+    // Animate building beacons
+    buildingsRef.current.forEach(building => {
+      building.children.forEach(child => {
+        if (child.userData.isBeacon) {
+          child.rotation.y += 0.05;
+        }
+      });
+    });
+
     if (sceneRef.current && cameraRef.current && rendererRef.current) {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
     }
@@ -819,7 +878,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       setTimeout(() => {
         newDataTypes[dataType].owned = true;
         setGameState((prev) => ({ ...prev, data_types: newDataTypes }));
-      }, 10000);
+      }, 60000); // 1 minute cooldown
     } catch (error) {
       console.error("Error updating game state:", error);
     }
@@ -844,7 +903,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         />
       )}
       {showDashboard && (
-        <Dashboard userId={userId} onClose={() => setShowDashboard(false)} />
+        <Dashboard userId={userId} characterData={currentCharacterData} onClose={() => setShowDashboard(false)} />
       )}
       {isEditingCharacter && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">

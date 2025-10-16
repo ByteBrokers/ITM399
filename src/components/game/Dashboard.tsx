@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { X, TrendingUp, Calendar, Coins } from "lucide-react";
+import type { CharacterCustomizationData } from "@/types/game";
 
 interface DashboardProps {
   userId: string;
+  characterData: CharacterCustomizationData;
   onClose: () => void;
 }
 
@@ -15,7 +17,7 @@ interface EarningsData {
   amount: number;
 }
 
-const Dashboard = ({ userId, onClose }: DashboardProps) => {
+const Dashboard = ({ userId, characterData, onClose }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
@@ -107,6 +109,37 @@ const Dashboard = ({ userId, onClose }: DashboardProps) => {
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Character Preview */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Character</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
+                <div className="relative">
+                  {/* Simple character representation */}
+                  <div 
+                    className="w-32 h-48 rounded-lg flex flex-col items-center justify-center gap-2"
+                    style={{ backgroundColor: characterData.body_color }}
+                  >
+                    {/* Head */}
+                    <div 
+                      className="w-16 h-16 rounded-full"
+                      style={{ backgroundColor: characterData.skin_color }}
+                    />
+                    {/* Body indicator text */}
+                    <div className="text-white text-xs font-bold">
+                      Height: {characterData.height.toFixed(1)}x
+                    </div>
+                    <div className="text-white text-xs font-bold">
+                      Width: {characterData.width.toFixed(1)}x
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
