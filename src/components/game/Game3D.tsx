@@ -568,36 +568,36 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     });
   };
 
-  const createPlayer = () => {
+  const createPlayer = (charData: CharacterCustomizationData = currentCharacterData) => {
     const player = new THREE.Group();
 
-    const bodyColor = parseInt(currentCharacterData.body_color.replace("#", "0x"));
-    const skinColor = parseInt(currentCharacterData.skin_color.replace("#", "0x"));
+    const bodyColor = parseInt(charData.body_color.replace("#", "0x"));
+    const skinColor = parseInt(charData.skin_color.replace("#", "0x"));
 
     const bodyGeometry = new THREE.CylinderGeometry(
-      currentCharacterData.width,
-      currentCharacterData.width,
-      3 * currentCharacterData.height
+      charData.width,
+      charData.width,
+      3 * charData.height
     );
     const bodyMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1.5 * currentCharacterData.height;
+    body.position.y = 1.5 * charData.height;
     player.add(body);
 
-    const headGeometry = new THREE.SphereGeometry(0.6 * currentCharacterData.height);
+    const headGeometry = new THREE.SphereGeometry(0.6 * charData.height);
     const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 3.6 * currentCharacterData.height;
+    head.position.y = 3.6 * charData.height;
     player.add(head);
 
     return player;
   };
 
-  const updatePlayerAppearance = () => {
+  const updatePlayerAppearance = (charData: CharacterCustomizationData = currentCharacterData) => {
     if (playerRef.current && sceneRef.current) {
       const oldPosition = playerRef.current.position.clone();
       sceneRef.current.remove(playerRef.current);
-      const newPlayer = createPlayer();
+      const newPlayer = createPlayer(charData);
       newPlayer.position.copy(oldPosition);
       sceneRef.current.add(newPlayer);
       playerRef.current = newPlayer;
@@ -627,7 +627,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         setReturnToDashboard(false);
       }
       
-      updatePlayerAppearance();
+      // Pass the new data directly to avoid state timing issues
+      updatePlayerAppearance(data);
     } catch (error) {
       console.error("Error updating character:", error);
       toast.error("Failed to update character");
