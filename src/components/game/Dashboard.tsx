@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { X, TrendingUp, Calendar, Coins } from "lucide-react";
+import { X, TrendingUp, Calendar, Coins, Edit } from "lucide-react";
 import type { CharacterCustomizationData } from "@/types/game";
 
 interface DashboardProps {
   userId: string;
   characterData: CharacterCustomizationData;
   onClose: () => void;
+  onEditCharacter: () => void;
 }
 
 interface EarningsData {
@@ -17,7 +18,7 @@ interface EarningsData {
   amount: number;
 }
 
-const Dashboard = ({ userId, characterData, onClose }: DashboardProps) => {
+const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
@@ -111,28 +112,80 @@ const Dashboard = ({ userId, characterData, onClose }: DashboardProps) => {
         <div className="p-6 space-y-6">
           {/* Character Preview */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Your Character</CardTitle>
+              <Button onClick={onEditCharacter} size="sm" variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Character
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
-                <div className="relative">
-                  {/* Simple character representation */}
-                  <div 
-                    className="w-32 h-48 rounded-lg flex flex-col items-center justify-center gap-2"
-                    style={{ backgroundColor: characterData.body_color }}
-                  >
+                <div className="relative flex flex-col items-center gap-4">
+                  {/* 3D-like character representation matching the game */}
+                  <div className="relative" style={{ transform: 'perspective(500px) rotateY(-15deg)' }}>
                     {/* Head */}
                     <div 
-                      className="w-16 h-16 rounded-full"
-                      style={{ backgroundColor: characterData.skin_color }}
+                      className="w-20 h-20 rounded-full mx-auto border-4 border-black/20 shadow-lg"
+                      style={{ 
+                        backgroundColor: characterData.skin_color,
+                        transform: 'translateZ(20px)'
+                      }}
                     />
-                    {/* Body indicator text */}
-                    <div className="text-white text-xs font-bold">
-                      Height: {characterData.height.toFixed(1)}x
+                    
+                    {/* Body */}
+                    <div 
+                      className="mt-2 rounded-lg border-4 border-black/20 shadow-xl"
+                      style={{ 
+                        backgroundColor: characterData.body_color,
+                        width: `${80 * characterData.width}px`,
+                        height: `${120 * characterData.height}px`,
+                        margin: '8px auto 0',
+                        transform: 'translateZ(10px)'
+                      }}
+                    />
+                    
+                    {/* Legs */}
+                    <div className="flex gap-2 justify-center mt-2">
+                      <div 
+                        className="rounded border-2 border-black/20 shadow-md"
+                        style={{ 
+                          backgroundColor: characterData.body_color,
+                          width: `${28 * characterData.width}px`,
+                          height: `${60 * characterData.height}px`,
+                        }}
+                      />
+                      <div 
+                        className="rounded border-2 border-black/20 shadow-md"
+                        style={{ 
+                          backgroundColor: characterData.body_color,
+                          width: `${28 * characterData.width}px`,
+                          height: `${60 * characterData.height}px`,
+                        }}
+                      />
                     </div>
-                    <div className="text-white text-xs font-bold">
-                      Width: {characterData.width.toFixed(1)}x
+                  </div>
+                  
+                  {/* Character stats */}
+                  <div className="text-center space-y-1 mt-4">
+                    <div className="text-sm font-semibold text-muted-foreground">
+                      Height: {characterData.height.toFixed(1)}x | Width: {characterData.width.toFixed(1)}x
+                    </div>
+                    <div className="flex gap-3 justify-center text-xs">
+                      <div className="flex items-center gap-1">
+                        <div 
+                          className="w-4 h-4 rounded border border-border"
+                          style={{ backgroundColor: characterData.body_color }}
+                        />
+                        <span className="text-muted-foreground">Body</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div 
+                          className="w-4 h-4 rounded-full border border-border"
+                          style={{ backgroundColor: characterData.skin_color }}
+                        />
+                        <span className="text-muted-foreground">Skin</span>
+                      </div>
                     </div>
                   </div>
                 </div>

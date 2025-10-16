@@ -903,7 +903,15 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         />
       )}
       {showDashboard && (
-        <Dashboard userId={userId} characterData={currentCharacterData} onClose={() => setShowDashboard(false)} />
+        <Dashboard 
+          userId={userId} 
+          characterData={currentCharacterData} 
+          onClose={() => setShowDashboard(false)}
+          onEditCharacter={() => {
+            setShowDashboard(false);
+            setIsEditingCharacter(true);
+          }}
+        />
       )}
       {isEditingCharacter && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
