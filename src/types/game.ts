@@ -25,6 +25,7 @@ export interface CharacterCustomizationData {
 export interface DataType {
   value: number;
   owned: boolean;
+  lastCollectedTime?: number;
 }
 
 export interface GameStateData {

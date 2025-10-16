@@ -129,6 +129,47 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     };
   }, []);
 
+  // Check cooldown timers and restore owned status
+  useEffect(() => {
+    const checkCooldowns = async () => {
+      const currentTime = Date.now();
+      const cooldownPeriod = 60000; // 1 minute in milliseconds
+      let hasUpdates = false;
+      const updatedDataTypes = { ...gameState.data_types };
+
+      Object.keys(updatedDataTypes).forEach((dataType) => {
+        const data = updatedDataTypes[dataType];
+        if (!data.owned && data.lastCollectedTime) {
+          const timeSinceCollection = currentTime - data.lastCollectedTime;
+          if (timeSinceCollection >= cooldownPeriod) {
+            updatedDataTypes[dataType] = { ...data, owned: true };
+            hasUpdates = true;
+          }
+        }
+      });
+
+      if (hasUpdates) {
+        setGameState((prev) => ({ ...prev, data_types: updatedDataTypes }));
+        
+        // Update database
+        if (userId) {
+          try {
+            await supabase
+              .from("game_state")
+              .update({ data_types: updatedDataTypes as any })
+              .eq("user_id", userId);
+            console.log("Cooldowns updated");
+          } catch (error) {
+            console.error("Error updating cooldowns:", error);
+          }
+        }
+      }
+    };
+
+    const interval = setInterval(checkCooldowns, 1000); // Check every second
+    return () => clearInterval(interval);
+  }, [gameState.data_types, userId]);
+
   const initThreeJS = () => {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb); // Blue sky
@@ -812,7 +853,12 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     if (!userId || !currentCompany) return;
 
     const newDataTypes = { ...gameState.data_types };
-    newDataTypes[dataType] = { ...newDataTypes[dataType], owned: false };
+    const currentTime = Date.now();
+    newDataTypes[dataType] = { 
+      ...newDataTypes[dataType], 
+      owned: false,
+      lastCollectedTime: currentTime
+    };
 
     const newCoins = gameState.coins + price;
     const newExp = gameState.exp + 10;
@@ -855,11 +901,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         });
 
       toast.success(`Sold ${dataType} for ${price} coins!`);
-
-      setTimeout(() => {
-        newDataTypes[dataType].owned = true;
-        setGameState((prev) => ({ ...prev, data_types: newDataTypes }));
-      }, 60000); // 1 minute cooldown
     } catch (error) {
       console.error("Error updating game state:", error);
     }
