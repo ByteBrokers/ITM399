@@ -667,34 +667,6 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       outline.position.y = 6;
       building.add(outline);
 
-      // Add company sign above entrance
-      const signGeometry = new THREE.BoxGeometry(8, 2, 0.5);
-      const signMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
-      const sign = new THREE.Mesh(signGeometry, signMaterial);
-      sign.position.set(0, 1.5, 5.5);
-      building.add(sign);
-
-      // Add text to sign (using simple geometry)
-      const canvas = document.createElement('canvas');
-      canvas.width = 512;
-      canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = company.color.toString(16).padStart(6, '0');
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 60px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(company.name, canvas.width / 2, canvas.height / 2);
-      }
-      const texture = new THREE.CanvasTexture(canvas);
-      const textMaterial = new THREE.MeshBasicMaterial({ map: texture });
-      const textGeometry = new THREE.PlaneGeometry(8, 2);
-      const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-      textMesh.position.set(0, 1.5, 5.51);
-      building.add(textMesh);
-
       // Different colored roof
       const roofGeometry = new THREE.ConeGeometry(9, 4, 4);
       const roofMaterial = new THREE.MeshLambertMaterial({ color: company.color });
