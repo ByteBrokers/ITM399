@@ -27,6 +27,7 @@ const GameUI = ({ gameState, onLogout, onEditCharacter }: GameUIProps) => {
       <div className="absolute bottom-5 left-5 bg-black/80 backdrop-blur-lg text-white p-4 rounded-lg">
         <div className="font-bold mb-2">Controls:</div>
         <div>⬆️⬇️⬅️➡️ Arrow Keys - Move</div>
+        <div>🖱️ Mouse - Navigate camera view</div>
         <div>💼 Walk to buildings to sell data</div>
       </div>
     </>

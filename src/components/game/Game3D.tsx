@@ -755,10 +755,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       }
     });
 
-    if (nearBuilding && nearBuilding.userData !== currentCompany) {
-      setCurrentCompany(nearBuilding.userData as Company);
-    } else if (!nearBuilding && currentCompany) {
-      setCurrentCompany(null);
+    // Update company state based on proximity
+    if (nearBuilding) {
+      if (nearBuilding.userData !== currentCompany) {
+        setCurrentCompany(nearBuilding.userData as Company);
+      }
+    } else {
+      // Clear company when not near any building
+      if (currentCompany) {
+        setCurrentCompany(null);
+      }
     }
   };
 
