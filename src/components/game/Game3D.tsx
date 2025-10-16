@@ -54,6 +54,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
   const [isEditingCharacter, setIsEditingCharacter] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [returnToDashboard, setReturnToDashboard] = useState(false);
   const [currentCharacterData, setCurrentCharacterData] = useState(characterData);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -619,6 +620,13 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
       toast.success("Character updated!");
       setIsEditingCharacter(false);
+      
+      // If we came from dashboard, return to dashboard
+      if (returnToDashboard) {
+        setShowDashboard(true);
+        setReturnToDashboard(false);
+      }
+      
       updatePlayerAppearance();
     } catch (error) {
       console.error("Error updating character:", error);
@@ -909,6 +917,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           onClose={() => setShowDashboard(false)}
           onEditCharacter={() => {
             setShowDashboard(false);
+            setReturnToDashboard(true);
             setIsEditingCharacter(true);
           }}
         />
@@ -919,7 +928,13 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Edit Character</h2>
               <button
-                onClick={() => setIsEditingCharacter(false)}
+                onClick={() => {
+                  setIsEditingCharacter(false);
+                  if (returnToDashboard) {
+                    setShowDashboard(true);
+                    setReturnToDashboard(false);
+                  }
+                }}
                 className="text-muted-foreground hover:text-foreground text-2xl"
               >
                 ×

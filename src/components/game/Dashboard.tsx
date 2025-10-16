@@ -144,26 +144,6 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                         transform: 'translateZ(10px)'
                       }}
                     />
-                    
-                    {/* Legs */}
-                    <div className="flex gap-2 justify-center mt-2">
-                      <div 
-                        className="rounded border-2 border-black/20 shadow-md"
-                        style={{ 
-                          backgroundColor: characterData.body_color,
-                          width: `${28 * characterData.width}px`,
-                          height: `${60 * characterData.height}px`,
-                        }}
-                      />
-                      <div 
-                        className="rounded border-2 border-black/20 shadow-md"
-                        style={{ 
-                          backgroundColor: characterData.body_color,
-                          width: `${28 * characterData.width}px`,
-                          height: `${60 * characterData.height}px`,
-                        }}
-                      />
-                    </div>
                   </div>
                   
                   {/* Character stats */}

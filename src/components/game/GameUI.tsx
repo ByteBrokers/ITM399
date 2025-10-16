@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { GameStateData } from "@/types/game";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, UserPen, LogOut } from "lucide-react";
 
 interface GameUIProps {
   gameState: GameStateData;
@@ -22,9 +22,11 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard }: GameU
             Dashboard
           </Button>
           <Button onClick={onEditCharacter} variant="secondary" size="sm">
-            Edit Character
+            <UserPen className="h-4 w-4 mr-1" />
+            Edit
           </Button>
           <Button onClick={onLogout} variant="destructive" size="sm">
+            <LogOut className="h-4 w-4 mr-1" />
             Logout
           </Button>
         </div>
