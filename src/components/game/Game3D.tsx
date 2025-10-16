@@ -7,6 +7,7 @@ import GameUI from "./GameUI";
 import DataPanel from "./DataPanel";
 import InteractionPrompt from "./InteractionPrompt";
 import CharacterCustomization from "./CharacterCustomization";
+import Dashboard from "./Dashboard";
 import type { CharacterCustomizationData, GameStateData, Company } from "@/types/game";
 
 interface Game3DProps {
@@ -52,6 +53,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const [gameState, setGameState] = useState(initialGameState);
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
   const [isEditingCharacter, setIsEditingCharacter] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [currentCharacterData, setCurrentCharacterData] = useState(characterData);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -747,28 +749,28 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
     const playerPos = playerRef.current.position;
     let nearBuilding: THREE.Group | null = null;
+    let nearestCompany: Company | null = null;
 
     buildingsRef.current.forEach((building) => {
       const distance = playerPos.distanceTo(building.position);
       if (distance < 12) {
         nearBuilding = building;
+        nearestCompany = building.userData as Company;
       }
     });
 
-    // Update company state based on proximity
-    if (nearBuilding) {
-      if (nearBuilding.userData !== currentCompany) {
-        setCurrentCompany(nearBuilding.userData as Company);
-      }
+    // Always update company state based on proximity
+    // This ensures the popup disappears when stepping away
+    if (nearestCompany) {
+      setCurrentCompany(nearestCompany);
     } else {
-      // Clear company when not near any building
-      if (currentCompany) {
-        setCurrentCompany(null);
-      }
+      setCurrentCompany(null);
     }
   };
 
   const handleSellData = async (dataType: string, price: number) => {
+    if (!userId || !currentCompany) return;
+
     const newDataTypes = { ...gameState.data_types };
     newDataTypes[dataType] = { ...newDataTypes[dataType], owned: false };
 
@@ -791,6 +793,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     setGameState(newGameState);
 
     try {
+      // Update game state in database
       await supabase
         .from("game_state")
         .update({
@@ -800,6 +803,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           data_types: newDataTypes as any,
         })
         .eq("user_id", userId);
+
+      // Record earnings in history
+      await supabase
+        .from("earnings_history")
+        .insert({
+          user_id: userId,
+          amount: price,
+          data_type: dataType,
+          company_name: currentCompany.name,
+        });
 
       toast.success(`Sold ${dataType} for ${price} coins!`);
 
@@ -815,7 +828,12 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <div ref={containerRef} className="w-full h-full" />
-      <GameUI gameState={gameState} onLogout={onLogout} onEditCharacter={() => setIsEditingCharacter(true)} />
+      <GameUI 
+        gameState={gameState} 
+        onLogout={onLogout} 
+        onEditCharacter={() => setIsEditingCharacter(true)}
+        onOpenDashboard={() => setShowDashboard(true)}
+      />
       <DataPanel dataTypes={gameState.data_types} />
       {currentCompany && (
         <InteractionPrompt
@@ -824,6 +842,9 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           onSell={handleSellData}
           onClose={() => setCurrentCompany(null)}
         />
+      )}
+      {showDashboard && (
+        <Dashboard userId={userId} onClose={() => setShowDashboard(false)} />
       )}
       {isEditingCharacter && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">

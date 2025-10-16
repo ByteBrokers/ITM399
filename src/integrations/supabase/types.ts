@@ -47,6 +47,33 @@ export type Database = {
         }
         Relationships: []
       }
+      earnings_history: {
+        Row: {
+          amount: number
+          company_name: string
+          created_at: string
+          data_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          company_name: string
+          created_at?: string
+          data_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          company_name?: string
+          created_at?: string
+          data_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_state: {
         Row: {
           coins: number
