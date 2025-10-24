@@ -706,13 +706,14 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                         data={salesByDataType}
                         cx="50%"
                         cy="35%"
-                        labelLine={false}
-                        label={false}
+                        labelLine={true}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                         outerRadius={70}
                         fill="hsl(var(--primary))"
                         dataKey="value"
                         stroke="hsl(var(--background))"
                         strokeWidth={2}
+                        style={{ fontSize: '10px' }}
                       >
                         {salesByDataType.map((entry, index) => {
                           const colors = [
