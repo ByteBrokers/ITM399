@@ -172,7 +172,9 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
 
   const initThreeJS = () => {
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb); // Blue sky
+    scene.background = new THREE.Color(0x7ec0ee); // Natural sky blue
+    scene.fog = new THREE.Fog(0x7ec0ee, 50, 200); // Atmospheric fog
+    
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -183,18 +185,24 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     renderer.setSize(window.innerWidth, window.innerHeight);
     containerRef.current!.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // Natural lighting - warmer sunlight
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(50, 50, 50);
+    const directionalLight = new THREE.DirectionalLight(0xfff4e6, 0.7);
+    directionalLight.position.set(50, 80, 50);
+    directionalLight.castShadow = true;
     scene.add(directionalLight);
 
+    // Ground - natural grass color
     const groundGeometry = new THREE.PlaneGeometry(200, 200);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x3cb371 });
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x6b8e23 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     scene.add(ground);
+    
+    // Add clouds to the sky
+    createClouds(scene);
 
     // ByteBrokers centerpiece
     const createByteBrokerSign = () => {
@@ -273,9 +281,53 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     window.addEventListener("resize", handleResize);
   };
 
+  const createClouds = (scene: THREE.Scene) => {
+    const cloudMaterial = new THREE.MeshLambertMaterial({ 
+      color: 0xffffff, 
+      transparent: true, 
+      opacity: 0.9 
+    });
+
+    // Create multiple clouds at different positions
+    const cloudPositions = [
+      { x: -40, y: 60, z: -30 },
+      { x: 30, y: 55, z: -40 },
+      { x: -20, y: 65, z: 40 },
+      { x: 50, y: 58, z: 20 },
+      { x: 0, y: 70, z: -60 },
+      { x: -50, y: 62, z: 30 },
+      { x: 40, y: 68, z: -20 },
+      { x: -30, y: 56, z: -50 },
+      { x: 20, y: 64, z: 50 },
+      { x: 60, y: 60, z: -10 },
+    ];
+
+    cloudPositions.forEach(pos => {
+      const cloud = new THREE.Group();
+      
+      // Create cloud from multiple spheres for a fluffy look
+      const sphereGeometry = new THREE.SphereGeometry(3, 8, 8);
+      
+      for (let i = 0; i < 5; i++) {
+        const sphere = new THREE.Mesh(sphereGeometry, cloudMaterial);
+        const offsetX = (Math.random() - 0.5) * 6;
+        const offsetY = (Math.random() - 0.5) * 2;
+        const offsetZ = (Math.random() - 0.5) * 4;
+        const scale = 0.7 + Math.random() * 0.6;
+        
+        sphere.position.set(offsetX, offsetY, offsetZ);
+        sphere.scale.set(scale, scale * 0.7, scale);
+        cloud.add(sphere);
+      }
+      
+      cloud.position.set(pos.x, pos.y, pos.z);
+      scene.add(cloud);
+    });
+  };
+
   const createCityEnvironment = (scene: THREE.Scene) => {
-    // Create footpaths (narrower and more path-like)
-    const footpathMaterial = new THREE.MeshLambertMaterial({ color: 0x8b7355 });
+    // Create footpaths - natural stone path color
+    const footpathMaterial = new THREE.MeshLambertMaterial({ color: 0xa89968 });
     
     // Main cross footpaths
     const horizontalPath = new THREE.Mesh(
@@ -325,16 +377,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     treePositions.forEach(pos => {
       const tree = new THREE.Group();
       
-      // Trunk (much taller)
+      // Trunk - natural brown bark
       const trunkGeometry = new THREE.CylinderGeometry(0.4, 0.5, 8);
-      const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+      const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
       const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
       trunk.position.y = 4;
       tree.add(trunk);
 
-      // Foliage (larger and higher)
+      // Foliage - natural forest green
       const foliageGeometry = new THREE.SphereGeometry(3, 8, 8);
-      const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+      const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5a1e });
       const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
       foliage.position.y = 10;
       tree.add(foliage);
@@ -393,9 +445,9 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     bushPositions.forEach(pos => {
       const bush = new THREE.Group();
       
-      // Main bush body
+      // Main bush body - darker natural green
       const bushGeometry = new THREE.SphereGeometry(1.2, 6, 6);
-      const bushMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5016 });
+      const bushMaterial = new THREE.MeshLambertMaterial({ color: 0x1e4620 });
       const bushMesh = new THREE.Mesh(bushGeometry, bushMaterial);
       bushMesh.position.y = 0.8;
       bushMesh.scale.set(1, 0.8, 1);
