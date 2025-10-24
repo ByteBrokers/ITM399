@@ -56,6 +56,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   const [showDashboard, setShowDashboard] = useState(false);
   const [returnToDashboard, setReturnToDashboard] = useState(false);
   const [currentCharacterData, setCurrentCharacterData] = useState(characterData);
+  const [openWithdrawalOnDashboard, setOpenWithdrawalOnDashboard] = useState(false);
 
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -1017,6 +1018,10 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         onLogout={onLogout} 
         onEditCharacter={() => setIsEditingCharacter(true)}
         onOpenDashboard={() => setShowDashboard(true)}
+        onOpenWithdraw={() => {
+          setOpenWithdrawalOnDashboard(true);
+          setShowDashboard(true);
+        }}
       />
       <DataPanel dataTypes={gameState.data_types} />
       {currentCompany && (
@@ -1031,12 +1036,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         <Dashboard 
           userId={userId} 
           characterData={currentCharacterData} 
-          onClose={() => setShowDashboard(false)}
+          onClose={() => {
+            setShowDashboard(false);
+            setOpenWithdrawalOnDashboard(false);
+          }}
           onEditCharacter={() => {
             setShowDashboard(false);
             setReturnToDashboard(true);
             setIsEditingCharacter(true);
           }}
+          openWithdrawal={openWithdrawalOnDashboard}
         />
       )}
       {isEditingCharacter && (

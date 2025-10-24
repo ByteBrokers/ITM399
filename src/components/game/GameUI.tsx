@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
 import type { GameStateData } from "@/types/game";
 import { BarChart3, UserPen, LogOut, Wallet } from "lucide-react";
-import { toast } from "sonner";
 
 interface GameUIProps {
   gameState: GameStateData;
   onLogout: () => void;
   onEditCharacter: () => void;
   onOpenDashboard: () => void;
+  onOpenWithdraw: () => void;
 }
 
-const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard }: GameUIProps) => {
+const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenWithdraw }: GameUIProps) => {
   return (
     <>
       <div className="absolute top-6 left-6 bg-card/90 backdrop-blur-xl border border-border shadow-xl rounded-xl p-5 min-w-[240px]">
@@ -45,7 +45,7 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard }: GameU
             Edit Character
           </Button>
           <Button 
-            onClick={() => toast.info("This is a work in progress")}
+            onClick={onOpenWithdraw}
             variant="outline" 
             size="sm" 
             className="w-full justify-start"
