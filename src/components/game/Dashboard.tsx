@@ -50,6 +50,7 @@ interface DashboardProps {
   characterData: CharacterCustomizationData;
   onClose: () => void;
   onEditCharacter: () => void;
+  openWithdrawal?: boolean;
 }
 
 interface EarningsData {
@@ -74,7 +75,7 @@ interface CurrentInventoryItem {
   potentialEarnings: number;
 }
 
-const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: DashboardProps) => {
+const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdrawal }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
@@ -111,6 +112,12 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
     loadDashboardData();
     loadQuestionnaireData();
   }, [userId]);
+
+  useEffect(() => {
+    if (openWithdrawal) {
+      setShowWithdrawalDialog(true);
+    }
+  }, [openWithdrawal]);
 
   const loadDashboardData = async () => {
     // Get total earnings
@@ -1064,7 +1071,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
 
     {/* Withdrawal Dialog */}
     <Dialog open={showWithdrawalDialog} onOpenChange={setShowWithdrawalDialog}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[450px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-primary" />
