@@ -73,10 +73,6 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenW
             <span>Move character</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">🖱️</span>
-            <span>Navigate camera</span>
-          </div>
-          <div className="flex items-center gap-2">
             <span className="font-mono text-xs bg-muted px-2 py-1 rounded">💼</span>
             <span>Approach buildings</span>
           </div>
