@@ -11,7 +11,38 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package, Trophy } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import type { CharacterCustomizationData, QuestionnaireData } from "@/types/game";
+import type { CharacterCustomizationData, QuestionnaireData, Company, DataType } from "@/types/game";
+
+const companies: Company[] = [
+  {
+    name: "TechCorp",
+    color: 0x4caf50,
+    interests: ["Location Data", "Device Usage", "Digital Habits"],
+    multiplier: 1.2,
+    description: "We optimize user experiences with location and usage data!",
+  },
+  {
+    name: "AdVentures",
+    color: 0xff9800,
+    interests: ["Shopping Habits", "Social Media", "Interests"],
+    multiplier: 1.5,
+    description: "Premium advertising solutions need your shopping and social data!",
+  },
+  {
+    name: "HealthTech",
+    color: 0x2196f3,
+    interests: ["Health Data", "Fitness Data", "Location Data"],
+    multiplier: 1.8,
+    description: "Advancing healthcare through data-driven insights!",
+  },
+  {
+    name: "DataMega",
+    color: 0x9c27b0,
+    interests: ["Digital Habits", "Shopping Habits", "Social Media", "Privacy Preferences"],
+    multiplier: 1.1,
+    description: "Big data solutions for the modern world!",
+  },
+];
 
 interface DashboardProps {
   userId: string;
@@ -35,6 +66,13 @@ interface DataTypeData {
   value: number;
 }
 
+interface CurrentInventoryItem {
+  name: string;
+  value: number;
+  bestCompany: string;
+  potentialEarnings: number;
+}
+
 const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
@@ -42,6 +80,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
   const [earningsOverTime, setEarningsOverTime] = useState<EarningsData[]>([]);
   const [salesByCompany, setSalesByCompany] = useState<CompanyData[]>([]);
   const [salesByDataType, setSalesByDataType] = useState<DataTypeData[]>([]);
+  const [currentInventory, setCurrentInventory] = useState<CurrentInventoryItem[]>([]);
   const [showQuestionnaireEditor, setShowQuestionnaireEditor] = useState(false);
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData>({
     name: "",
@@ -167,6 +206,53 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
         value,
       }));
       setSalesByDataType(dataTypeChartData);
+    }
+
+    // Get current inventory (owned data from game_state)
+    const { data: gameStateData } = await supabase
+      .from("game_state")
+      .select("data_types")
+      .eq("user_id", userId)
+      .single();
+
+    if (gameStateData && gameStateData.data_types) {
+      const dataTypes = gameStateData.data_types as unknown as Record<string, DataType>;
+      const inventoryItems: CurrentInventoryItem[] = [];
+
+      Object.entries(dataTypes).forEach(([dataTypeName, dataTypeInfo]) => {
+        if (dataTypeInfo.owned) {
+          // Find best company for this data type
+          let bestCompany = "";
+          let maxEarnings = dataTypeInfo.value;
+
+          companies.forEach(company => {
+            if (company.interests.includes(dataTypeName)) {
+              const potentialEarnings = Math.floor(dataTypeInfo.value * company.multiplier);
+              if (potentialEarnings > maxEarnings) {
+                maxEarnings = potentialEarnings;
+                bestCompany = company.name;
+              }
+            }
+          });
+
+          if (!bestCompany) {
+            // If no company is interested, show base value
+            bestCompany = "Any Company";
+            maxEarnings = dataTypeInfo.value;
+          }
+
+          inventoryItems.push({
+            name: dataTypeName,
+            value: dataTypeInfo.value,
+            bestCompany,
+            potentialEarnings: maxEarnings,
+          });
+        }
+      });
+
+      // Sort by potential earnings
+      inventoryItems.sort((a, b) => b.potentialEarnings - a.potentialEarnings);
+      setCurrentInventory(inventoryItems);
     }
   };
 
@@ -629,79 +715,43 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                   <Trophy className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg font-semibold">Top Earners</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-0.5">Highest revenue by category and company</p>
+                  <CardTitle className="text-lg font-semibold">Current Top Earners</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">Available data and best potential earnings</p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {(salesByDataType.length > 0 || salesByCompany.length > 0) ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Top Categories */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-3 text-foreground">Top Categories</h4>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">Rank</TableHead>
-                          <TableHead>Category</TableHead>
-                          <TableHead className="text-right">Revenue</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {salesByDataType
-                          .sort((a, b) => b.value - a.value)
-                          .slice(0, 5)
-                          .map((item, index) => (
-                            <TableRow key={item.name}>
-                              <TableCell className="font-medium">
-                                {index === 0 && <span className="text-yellow-500">🥇</span>}
-                                {index === 1 && <span className="text-gray-400">🥈</span>}
-                                {index === 2 && <span className="text-amber-600">🥉</span>}
-                                {index > 2 && <span className="text-muted-foreground">{index + 1}</span>}
-                              </TableCell>
-                              <TableCell className="font-medium">{item.name}</TableCell>
-                              <TableCell className="text-right font-semibold">{item.value}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {/* Top Companies */}
-                  <div>
-                    <h4 className="text-sm font-semibold mb-3 text-foreground">Top Companies</h4>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-12">Rank</TableHead>
-                          <TableHead>Company</TableHead>
-                          <TableHead className="text-right">Revenue</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {salesByCompany
-                          .sort((a, b) => b.value - a.value)
-                          .slice(0, 5)
-                          .map((item, index) => (
-                            <TableRow key={item.name}>
-                              <TableCell className="font-medium">
-                                {index === 0 && <span className="text-yellow-500">🥇</span>}
-                                {index === 1 && <span className="text-gray-400">🥈</span>}
-                                {index === 2 && <span className="text-amber-600">🥉</span>}
-                                {index > 2 && <span className="text-muted-foreground">{index + 1}</span>}
-                              </TableCell>
-                              <TableCell className="font-medium">{item.name}</TableCell>
-                              <TableCell className="text-right font-semibold">{item.value}</TableCell>
-                            </TableRow>
-                          ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
+              {currentInventory.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Rank</TableHead>
+                      <TableHead>Data Category</TableHead>
+                      <TableHead>Best Company</TableHead>
+                      <TableHead className="text-right">Base Value</TableHead>
+                      <TableHead className="text-right">Potential</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentInventory.slice(0, 5).map((item, index) => (
+                      <TableRow key={item.name}>
+                        <TableCell className="font-medium">
+                          {index === 0 && <span className="text-yellow-500">🥇</span>}
+                          {index === 1 && <span className="text-gray-400">🥈</span>}
+                          {index === 2 && <span className="text-amber-600">🥉</span>}
+                          {index > 2 && <span className="text-muted-foreground">{index + 1}</span>}
+                        </TableCell>
+                        <TableCell className="font-medium">{item.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{item.bestCompany}</TableCell>
+                        <TableCell className="text-right text-muted-foreground">{item.value}</TableCell>
+                        <TableCell className="text-right font-semibold text-primary">{item.potentialEarnings}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               ) : (
                 <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
-                  No sales data yet
+                  No data available in inventory
                 </div>
               )}
             </CardContent>
