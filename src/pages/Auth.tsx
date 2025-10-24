@@ -53,8 +53,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-primary">
-      <div className="w-full max-w-md p-8 bg-card rounded-xl shadow-elevated backdrop-blur-lg">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/20 relative overflow-hidden flex items-center justify-center">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/15 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md p-8 bg-card/95 backdrop-blur-sm rounded-xl shadow-xl border border-border">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Data Marketplace</h1>
           <p className="text-muted-foreground">
