@@ -168,6 +168,10 @@ const Game = () => {
     navigate("/auth");
   };
 
+  const handleGoHome = () => {
+    navigate("/");
+  };
+
   if (!userId) {
     return <div className="min-h-screen bg-gradient-primary flex items-center justify-center">
       <p className="text-white">Loading...</p>
@@ -188,6 +192,7 @@ const Game = () => {
           initialGameState={gameState}
           userId={userId}
           onLogout={handleLogout}
+          onGoHome={handleGoHome}
         />
       )}
     </>

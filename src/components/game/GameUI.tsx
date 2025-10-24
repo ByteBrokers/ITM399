@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { GameStateData } from "@/types/game";
-import { BarChart3, UserPen, LogOut, Wallet } from "lucide-react";
+import { BarChart3, UserPen, LogOut, Wallet, Home } from "lucide-react";
 
 interface GameUIProps {
   gameState: GameStateData;
@@ -8,9 +8,10 @@ interface GameUIProps {
   onEditCharacter: () => void;
   onOpenDashboard: () => void;
   onOpenWithdraw: () => void;
+  onGoHome: () => void;
 }
 
-const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenWithdraw }: GameUIProps) => {
+const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenWithdraw, onGoHome }: GameUIProps) => {
   return (
     <>
       <div className="absolute top-6 left-6 bg-card/90 backdrop-blur-xl border border-border shadow-xl rounded-xl p-5 min-w-[240px]">
@@ -36,6 +37,10 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenW
         </div>
         
         <div className="flex flex-col gap-2">
+          <Button onClick={onGoHome} variant="outline" size="sm" className="w-full justify-start">
+            <Home className="h-4 w-4 mr-2" />
+            Home
+          </Button>
           <Button onClick={onOpenDashboard} variant="outline" size="sm" className="w-full justify-start">
             <BarChart3 className="h-4 w-4 mr-2" />
             Dashboard

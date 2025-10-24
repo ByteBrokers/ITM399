@@ -15,6 +15,7 @@ interface Game3DProps {
   initialGameState: GameStateData;
   userId: string;
   onLogout: () => void;
+  onGoHome: () => void;
 }
 
 const companies: Company[] = [
@@ -48,7 +49,7 @@ const companies: Company[] = [
   },
 ];
 
-const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DProps) => {
+const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }: Game3DProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [gameState, setGameState] = useState(initialGameState);
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
@@ -1022,6 +1023,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
           setOpenWithdrawalOnDashboard(true);
           setShowDashboard(true);
         }}
+        onGoHome={onGoHome}
       />
       <DataPanel dataTypes={gameState.data_types} />
       {currentCompany && (
