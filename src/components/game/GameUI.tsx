@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import type { GameStateData } from "@/types/game";
-import { BarChart3, UserPen, LogOut } from "lucide-react";
+import { BarChart3, UserPen, LogOut, Wallet } from "lucide-react";
+import { toast } from "sonner";
 
 interface GameUIProps {
   gameState: GameStateData;
@@ -42,6 +43,15 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard }: GameU
           <Button onClick={onEditCharacter} variant="outline" size="sm" className="w-full justify-start">
             <UserPen className="h-4 w-4 mr-2" />
             Edit Character
+          </Button>
+          <Button 
+            onClick={() => toast.info("This is a work in progress")}
+            variant="outline" 
+            size="sm" 
+            className="w-full justify-start"
+          >
+            <Wallet className="h-4 w-4 mr-2" />
+            Withdraw
           </Button>
           <Button onClick={onLogout} variant="destructive" size="sm" className="w-full justify-start">
             <LogOut className="h-4 w-4 mr-2" />

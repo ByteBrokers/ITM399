@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { X, TrendingUp, Calendar, Coins, Edit } from "lucide-react";
+import { X, TrendingUp, Calendar, Coins, Edit, Wallet } from "lucide-react";
+import { toast } from "sonner";
 import type { CharacterCustomizationData } from "@/types/game";
 
 interface DashboardProps {
@@ -250,6 +251,14 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">{totalEarnings}</div>
                 <p className="text-xs text-muted-foreground mt-1">All time revenue</p>
+                <Button 
+                  onClick={() => toast.info("This is a work in progress")}
+                  size="sm" 
+                  className="w-full mt-3"
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  Withdraw
+                </Button>
               </CardContent>
             </Card>
 
