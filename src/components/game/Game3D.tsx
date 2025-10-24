@@ -664,47 +664,27 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     rightLeg.position.set(0.35 * charData.width, 0.5 * charData.height, 0);
     player.add(rightLeg);
 
-    // Glow effect around player
-    const glowGeometry = new THREE.BoxGeometry(
-      1.5 * charData.width,
-      4 * charData.height,
-      0.8 * charData.width
-    );
-    const glowMaterial = new THREE.MeshBasicMaterial({ 
+    // Floating arrow above player - triangle pointing down
+    const arrowShape = new THREE.Shape();
+    arrowShape.moveTo(0, 0.5);      // top point
+    arrowShape.lineTo(-0.5, -0.5);  // bottom left
+    arrowShape.lineTo(0.5, -0.5);   // bottom right
+    arrowShape.lineTo(0, 0.5);      // back to top
+    
+    const arrowGeometry = new THREE.ShapeGeometry(arrowShape);
+    const arrowMaterial = new THREE.MeshBasicMaterial({ 
       color: 0xffff00,
-      transparent: true,
-      opacity: 0.2,
-      side: THREE.BackSide
+      side: THREE.DoubleSide
     });
-    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-    glow.position.y = 2 * charData.height;
-    player.add(glow);
-
-    // Floating arrow above player
-    const arrowGroup = new THREE.Group();
-    
-    // Arrow shaft
-    const arrowShaft = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.1, 0.1, 1.5),
-      new THREE.MeshBasicMaterial({ color: 0xffff00 })
-    );
-    arrowShaft.position.y = 5 * charData.height;
-    arrowGroup.add(arrowShaft);
-    
-    // Arrow head (cone pointing down)
-    const arrowHead = new THREE.Mesh(
-      new THREE.ConeGeometry(0.3, 0.6, 4),
-      new THREE.MeshBasicMaterial({ color: 0xffff00 })
-    );
-    arrowHead.position.y = 4.2 * charData.height;
-    arrowHead.rotation.x = Math.PI; // Point downward
-    arrowGroup.add(arrowHead);
+    const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+    arrow.position.y = 5.5 * charData.height;
+    arrow.rotation.x = Math.PI / 2; // Make it horizontal so it's visible from above
     
     // Store animation data
-    arrowGroup.userData.isPlayerArrow = true;
-    arrowGroup.userData.baseY = 5 * charData.height;
+    arrow.userData.isPlayerArrow = true;
+    arrow.userData.baseY = 5.5 * charData.height;
     
-    player.add(arrowGroup);
+    player.add(arrow);
 
     return player;
   };
