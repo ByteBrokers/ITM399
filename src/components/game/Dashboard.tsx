@@ -698,17 +698,17 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="max-h-[450px] overflow-auto">
+              <CardContent className="overflow-auto">
                 {salesByDataType.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={350}>
+                  <ResponsiveContainer width="100%" height={Math.max(350, 250 + salesByDataType.length * 15)}>
                     <PieChart>
                       <Pie
                         data={salesByDataType}
                         cx="50%"
-                        cy="40%"
+                        cy="35%"
                         labelLine={false}
                         label={false}
-                        outerRadius={80}
+                        outerRadius={70}
                         fill="hsl(var(--primary))"
                         dataKey="value"
                         stroke="hsl(var(--background))"
@@ -744,19 +744,20 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                         formatter={(value, name) => [`${value} coins`, name]}
                       />
                       <Legend 
-                        verticalAlign="bottom" 
-                        height={80}
+                        verticalAlign="bottom"
+                        align="center"
                         wrapperStyle={{ 
                           paddingTop: '20px',
-                          maxHeight: '80px',
-                          overflowY: 'auto'
+                          fontSize: '11px'
                         }}
                         formatter={(value) => <span style={{ color: "hsl(var(--foreground))", fontSize: '11px' }}>{value}</span>}
+                        layout="horizontal"
+                        iconSize={10}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
                     No sales data yet
                   </div>
                 )}
