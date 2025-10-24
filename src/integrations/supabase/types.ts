@@ -18,8 +18,10 @@ export type Database = {
         Row: {
           body_color: string
           created_at: string
+          facial_expression: string | null
           height: number
           id: string
+          shirt_pattern: string | null
           skin_color: string
           updated_at: string
           user_id: string
@@ -28,8 +30,10 @@ export type Database = {
         Insert: {
           body_color?: string
           created_at?: string
+          facial_expression?: string | null
           height?: number
           id?: string
+          shirt_pattern?: string | null
           skin_color?: string
           updated_at?: string
           user_id: string
@@ -38,8 +42,10 @@ export type Database = {
         Update: {
           body_color?: string
           created_at?: string
+          facial_expression?: string | null
           height?: number
           id?: string
+          shirt_pattern?: string | null
           skin_color?: string
           updated_at?: string
           user_id?: string
