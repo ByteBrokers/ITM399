@@ -7,8 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
+import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package } from "lucide-react";
 import { toast } from "sonner";
 import type { CharacterCustomizationData, QuestionnaireData } from "@/types/game";
 
@@ -24,11 +24,23 @@ interface EarningsData {
   amount: number;
 }
 
+interface CompanyData {
+  name: string;
+  value: number;
+}
+
+interface DataTypeData {
+  name: string;
+  value: number;
+}
+
 const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
   const [earningsOverTime, setEarningsOverTime] = useState<EarningsData[]>([]);
+  const [salesByCompany, setSalesByCompany] = useState<CompanyData[]>([]);
+  const [salesByDataType, setSalesByDataType] = useState<DataTypeData[]>([]);
   const [showQuestionnaireEditor, setShowQuestionnaireEditor] = useState(false);
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData>({
     name: "",
@@ -118,6 +130,42 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
         amount,
       }));
       setEarningsOverTime(chartData);
+    }
+
+    // Get sales by company
+    const { data: companyData } = await supabase
+      .from("earnings_history")
+      .select("company_name, amount")
+      .eq("user_id", userId);
+
+    if (companyData) {
+      const companyTotals: Record<string, number> = {};
+      companyData.forEach(record => {
+        companyTotals[record.company_name] = (companyTotals[record.company_name] || 0) + record.amount;
+      });
+      const companyChartData = Object.entries(companyTotals).map(([name, value]) => ({
+        name,
+        value,
+      }));
+      setSalesByCompany(companyChartData);
+    }
+
+    // Get sales by data type
+    const { data: dataTypeData } = await supabase
+      .from("earnings_history")
+      .select("data_type, amount")
+      .eq("user_id", userId);
+
+    if (dataTypeData) {
+      const dataTypeTotals: Record<string, number> = {};
+      dataTypeData.forEach(record => {
+        dataTypeTotals[record.data_type] = (dataTypeTotals[record.data_type] || 0) + record.amount;
+      });
+      const dataTypeChartData = Object.entries(dataTypeTotals).map(([name, value]) => ({
+        name,
+        value,
+      }));
+      setSalesByDataType(dataTypeChartData);
     }
   };
 
@@ -441,6 +489,118 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
               )}
             </CardContent>
           </Card>
+
+          {/* Sales by Company and Data Type */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Sales by Company */}
+            <Card className="border-border">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold">Sales by Company</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-0.5">Revenue breakdown</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {salesByCompany.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={salesByCompany}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={11}
+                        tickMargin={8}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        stroke="hsl(var(--muted-foreground))"
+                        fontSize={11}
+                        tickMargin={8}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "0.75rem",
+                          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                        }}
+                        labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
+                      />
+                      <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                    No sales data yet
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Sales by Data Type */}
+            <Card className="border-border">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Package className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-semibold">Sales by Category</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-0.5">Data type breakdown</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {salesByDataType.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={salesByDataType}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="hsl(var(--primary))"
+                        dataKey="value"
+                      >
+                        {salesByDataType.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={`hsl(${(index * 360) / salesByDataType.length}, 70%, 50%)`}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "0.75rem",
+                          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                        }}
+                      />
+                      <Legend 
+                        verticalAlign="bottom" 
+                        height={36}
+                        formatter={(value) => <span style={{ color: "hsl(var(--foreground))" }}>{value}</span>}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                    No sales data yet
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
