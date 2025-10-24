@@ -122,7 +122,7 @@ const BuyerDashboard = () => {
       });
 
       // Convert to listings array
-      const listings: DataListing[] = Array.from(dataTypeMap.entries()).map(([type, data]) => ({
+      let listings: DataListing[] = Array.from(dataTypeMap.entries()).map(([type, data]) => ({
         dataType: type,
         totalAvailable: data.count,
         averagePrice: data.prices.length > 0 
@@ -132,13 +132,91 @@ const BuyerDashboard = () => {
         sellers: data.sellers.size,
       })).sort((a, b) => b.totalAvailable - a.totalAvailable);
 
+      // If no data is available, show default sample data
+      if (listings.length === 0) {
+        listings = [
+          {
+            dataType: "Location Data",
+            totalAvailable: 15,
+            averagePrice: 50,
+            lastUpdated: new Date(Date.now() - 3600000).toISOString(),
+            sellers: 3,
+          },
+          {
+            dataType: "Browsing History",
+            totalAvailable: 12,
+            averagePrice: 30,
+            lastUpdated: new Date(Date.now() - 7200000).toISOString(),
+            sellers: 2,
+          },
+          {
+            dataType: "Purchase History",
+            totalAvailable: 10,
+            averagePrice: 45,
+            lastUpdated: new Date(Date.now() - 5400000).toISOString(),
+            sellers: 2,
+          },
+          {
+            dataType: "Social Media Activity",
+            totalAvailable: 8,
+            averagePrice: 40,
+            lastUpdated: new Date(Date.now() - 10800000).toISOString(),
+            sellers: 2,
+          },
+          {
+            dataType: "Health & Fitness Data",
+            totalAvailable: 6,
+            averagePrice: 60,
+            lastUpdated: new Date(Date.now() - 14400000).toISOString(),
+            sellers: 1,
+          },
+          {
+            dataType: "App Usage Data",
+            totalAvailable: 5,
+            averagePrice: 35,
+            lastUpdated: new Date(Date.now() - 18000000).toISOString(),
+            sellers: 1,
+          },
+        ];
+      }
+
       // Process recent transactions
-      const transactions: RecentTransaction[] = earnings?.map((e) => ({
+      let transactions: RecentTransaction[] = earnings?.map((e) => ({
         dataType: e.data_type,
         price: e.amount,
         timestamp: e.created_at,
         company: e.company_name,
       })) || [];
+
+      // If no transactions, show sample transactions
+      if (transactions.length === 0 && listings.length > 0) {
+        transactions = [
+          {
+            dataType: "Location Data",
+            price: 50,
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            company: "TechCorp",
+          },
+          {
+            dataType: "Social Media Activity",
+            price: 40,
+            timestamp: new Date(Date.now() - 7200000).toISOString(),
+            company: "DataInc",
+          },
+          {
+            dataType: "Browsing History",
+            price: 30,
+            timestamp: new Date(Date.now() - 10800000).toISOString(),
+            company: "MarketCo",
+          },
+          {
+            dataType: "Health & Fitness Data",
+            price: 60,
+            timestamp: new Date(Date.now() - 14400000).toISOString(),
+            company: "FitnessPro",
+          },
+        ];
+      }
 
       setDataListings(listings);
       setRecentTransactions(transactions);
