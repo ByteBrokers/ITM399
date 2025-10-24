@@ -559,24 +559,38 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
               </CardHeader>
               <CardContent>
                 {salesByDataType.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={350}>
                     <PieChart>
                       <Pie
                         data={salesByDataType}
                         cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
+                        cy="45%"
+                        labelLine={true}
+                        label={({ name, value, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        outerRadius={90}
                         fill="hsl(var(--primary))"
                         dataKey="value"
+                        stroke="hsl(var(--background))"
+                        strokeWidth={2}
                       >
-                        {salesByDataType.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={`hsl(${(index * 360) / salesByDataType.length}, 70%, 50%)`}
-                          />
-                        ))}
+                        {salesByDataType.map((entry, index) => {
+                          const colors = [
+                            '#3b82f6', // blue
+                            '#8b5cf6', // purple
+                            '#ec4899', // pink
+                            '#f59e0b', // amber
+                            '#10b981', // emerald
+                            '#06b6d4', // cyan
+                            '#f97316', // orange
+                            '#6366f1', // indigo
+                          ];
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={colors[index % colors.length]}
+                            />
+                          );
+                        })}
                       </Pie>
                       <Tooltip 
                         contentStyle={{
@@ -585,16 +599,19 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                           borderRadius: "0.75rem",
                           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                         }}
+                        labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
+                        formatter={(value) => [`${value} coins`, 'Revenue']}
                       />
                       <Legend 
                         verticalAlign="bottom" 
-                        height={36}
-                        formatter={(value) => <span style={{ color: "hsl(var(--foreground))" }}>{value}</span>}
+                        height={50}
+                        wrapperStyle={{ paddingTop: '20px' }}
+                        formatter={(value) => <span style={{ color: "hsl(var(--foreground))", fontSize: '12px' }}>{value}</span>}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
                     No sales data yet
                   </div>
                 )}
