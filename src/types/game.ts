@@ -20,6 +20,8 @@ export interface CharacterCustomizationData {
   skin_color: string;
   height: number;
   width: number;
+  facial_expression?: string;
+  shirt_pattern?: string;
 }
 
 export interface DataType {

@@ -14,6 +14,8 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
   const [skinColor, setSkinColor] = useState(initialData?.skin_color || "#ffdbac");
   const [height, setHeight] = useState(initialData?.height || 1.0);
   const [width, setWidth] = useState(initialData?.width || 0.8);
+  const [facialExpression, setFacialExpression] = useState(initialData?.facial_expression || "happy");
+  const [shirtPattern, setShirtPattern] = useState(initialData?.shirt_pattern || "solid");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -73,9 +75,45 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
   const createCharacter = () => {
     const character = new THREE.Group();
 
-    // Torso (rectangular block)
+    // Torso (rectangular block) with pattern
     const torsoGeometry = new THREE.BoxGeometry(1.2, 1.8, 0.6);
-    const torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    
+    // Create texture for shirt pattern
+    let torsoMaterial;
+    if (shirtPattern === "stripes") {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = bodyColor;
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 128; i += 16) {
+        ctx.fillRect(i, 0, 8, 128);
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      torsoMaterial = new THREE.MeshLambertMaterial({ map: texture });
+    } else if (shirtPattern === "dots") {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = bodyColor;
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#ffffff';
+      for (let x = 16; x < 128; x += 32) {
+        for (let y = 16; y < 128; y += 32) {
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      torsoMaterial = new THREE.MeshLambertMaterial({ map: texture });
+    } else {
+      torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    }
+    
     const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
     torso.position.y = 1.8;
     torso.userData.type = "torso";
@@ -89,21 +127,57 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
     head.userData.type = "head";
     character.add(head);
 
-    // Eyes
-    const eyeGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+    // Eyes - different styles based on expression
+    const eyeGeometry = facialExpression === "wink" 
+      ? new THREE.BoxGeometry(0.15, 0.05, 0.05)
+      : facialExpression === "surprised"
+      ? new THREE.BoxGeometry(0.2, 0.2, 0.05)
+      : new THREE.BoxGeometry(0.15, 0.15, 0.05);
     const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     leftEye.position.set(-0.2, 3.15, 0.45);
+    leftEye.userData.type = "eye";
     character.add(leftEye);
+    
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.2, 3.15, 0.45);
+    if (facialExpression === "wink") {
+      rightEye.scale.y = 3;
+      rightEye.position.set(0.2, 3.15, 0.45);
+    } else {
+      rightEye.position.set(0.2, 3.15, 0.45);
+    }
+    rightEye.userData.type = "eye";
     character.add(rightEye);
 
-    // Mouth
-    const mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+    // Mouth - different shapes based on expression
+    let mouthGeometry;
+    if (facialExpression === "happy") {
+      mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+    } else if (facialExpression === "sad") {
+      mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+    } else if (facialExpression === "surprised") {
+      mouthGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+    } else if (facialExpression === "angry") {
+      mouthGeometry = new THREE.BoxGeometry(0.35, 0.06, 0.05);
+    } else {
+      mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+    }
+    
     const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
-    mouth.position.set(0, 2.85, 0.45);
+    
+    if (facialExpression === "sad") {
+      mouth.position.set(0, 2.8, 0.45);
+      mouth.rotation.z = Math.PI;
+    } else if (facialExpression === "angry") {
+      mouth.position.set(0, 2.82, 0.45);
+      mouth.rotation.z = Math.PI * 0.05;
+    } else if (facialExpression === "surprised") {
+      mouth.position.set(0, 2.82, 0.45);
+    } else {
+      mouth.position.set(0, 2.85, 0.45);
+    }
+    mouth.userData.type = "mouth";
     character.add(mouth);
 
     // Hair (blocky top)
@@ -145,18 +219,15 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
   };
 
   useEffect(() => {
-    if (characterRef.current) {
-      characterRef.current.children.forEach((child) => {
-        if (child instanceof THREE.Mesh) {
-          if (child.userData.type === "torso" || child.userData.type === "leg") {
-            child.material.color.setHex(parseInt(bodyColor.replace("#", "0x")));
-          } else if (child.userData.type === "head" || child.userData.type === "arm") {
-            child.material.color.setHex(parseInt(skinColor.replace("#", "0x")));
-          }
-        }
-      });
+    if (characterRef.current && sceneRef.current) {
+      // Remove old character
+      sceneRef.current.remove(characterRef.current);
+      // Create new character with updated settings
+      const newCharacter = createCharacter();
+      sceneRef.current.add(newCharacter);
+      characterRef.current = newCharacter;
     }
-  }, [bodyColor, skinColor]);
+  }, [bodyColor, skinColor, facialExpression, shirtPattern]);
 
   useEffect(() => {
     if (characterRef.current) {
@@ -170,6 +241,8 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
       skin_color: skinColor,
       height,
       width,
+      facial_expression: facialExpression,
+      shirt_pattern: shirtPattern,
     });
   };
 
@@ -244,6 +317,40 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
               onChange={(e) => setWidth(parseFloat(e.target.value))}
               className="w-full"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="facialExpression" className="text-sm font-medium text-foreground">
+              Facial Expression
+            </Label>
+            <select
+              id="facialExpression"
+              value={facialExpression}
+              onChange={(e) => setFacialExpression(e.target.value)}
+              className="w-full h-10 rounded-lg border border-border bg-background px-3 text-sm"
+            >
+              <option value="happy">😊 Happy</option>
+              <option value="sad">😢 Sad</option>
+              <option value="surprised">😮 Surprised</option>
+              <option value="angry">😠 Angry</option>
+              <option value="wink">😉 Wink</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="shirtPattern" className="text-sm font-medium text-foreground">
+              Shirt Pattern
+            </Label>
+            <select
+              id="shirtPattern"
+              value={shirtPattern}
+              onChange={(e) => setShirtPattern(e.target.value)}
+              className="w-full h-10 rounded-lg border border-border bg-background px-3 text-sm"
+            >
+              <option value="solid">Solid Color</option>
+              <option value="stripes">Vertical Stripes</option>
+              <option value="dots">Polka Dots</option>
+            </select>
           </div>
 
           <Button onClick={handleSubmit} className="w-full mt-8 h-12 text-base font-semibold">
