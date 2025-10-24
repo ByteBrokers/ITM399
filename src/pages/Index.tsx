@@ -1,12 +1,118 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShoppingCart, TrendingUp } from "lucide-react";
+import logoImage from '@/assets/bytebrokerslogo1.png';
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col items-center justify-center p-6">
+      {/* Logo and Header */}
+      <div className="text-center mb-12 space-y-4">
+        <img 
+          src={logoImage} 
+          alt="ByteBrokers Logo" 
+          className="w-48 h-auto mx-auto mb-6 opacity-90"
+        />
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          Welcome to ByteBrokers
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Your personal data marketplace. Choose your path below.
+        </p>
       </div>
+
+      {/* Choice Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+        {/* Seller Card */}
+        <Card className="border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl cursor-pointer group">
+          <CardHeader className="text-center pb-4">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <TrendingUp className="h-10 w-10 text-primary" />
+            </div>
+            <CardTitle className="text-2xl">Sell Your Data</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Enter the game, collect your data, and sell it to companies for coins
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Play an immersive 3D game
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Collect and manage your personal data
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Sell to different companies for profit
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Track earnings and withdraw funds
+              </li>
+            </ul>
+            <Button 
+              onClick={() => navigate("/game")} 
+              className="w-full mt-4"
+              size="lg"
+            >
+              Start Selling
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Buyer Card */}
+        <Card className="border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl cursor-pointer group">
+          <CardHeader className="text-center pb-4">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <ShoppingCart className="h-10 w-10 text-primary" />
+            </div>
+            <CardTitle className="text-2xl">Buy Data</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Browse and purchase valuable user data for your business needs
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Access real user data insights
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Filter by data category and recency
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                View pricing and availability
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-primary">•</span>
+                Make informed purchasing decisions
+              </li>
+            </ul>
+            <Button 
+              onClick={() => navigate("/buyer")} 
+              className="w-full mt-4"
+              size="lg"
+              variant="outline"
+            >
+              Browse Data
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Footer */}
+      <p className="text-sm text-muted-foreground mt-12 text-center max-w-2xl">
+        ByteBrokers connects data sellers and buyers in a transparent marketplace. 
+        Your privacy and security are our top priorities.
+      </p>
     </div>
   );
 };
