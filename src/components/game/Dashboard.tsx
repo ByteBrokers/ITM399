@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
-import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package } from "lucide-react";
+import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package, Trophy } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import type { CharacterCustomizationData, QuestionnaireData } from "@/types/game";
 
@@ -566,12 +567,13 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                         cx="50%"
                         cy="45%"
                         labelLine={true}
-                        label={({ name, value, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                         outerRadius={90}
                         fill="hsl(var(--primary))"
                         dataKey="value"
                         stroke="hsl(var(--background))"
                         strokeWidth={2}
+                        style={{ fontSize: '11px' }}
                       >
                         {salesByDataType.map((entry, index) => {
                           const colors = [
@@ -618,6 +620,92 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
               </CardContent>
             </Card>
           </div>
+
+          {/* Top Earners Leaderboard */}
+          <Card className="border-border">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Trophy className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold">Top Earners</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-0.5">Highest revenue by category and company</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {(salesByDataType.length > 0 || salesByCompany.length > 0) ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Top Categories */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground">Top Categories</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">Rank</TableHead>
+                          <TableHead>Category</TableHead>
+                          <TableHead className="text-right">Revenue</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {salesByDataType
+                          .sort((a, b) => b.value - a.value)
+                          .slice(0, 5)
+                          .map((item, index) => (
+                            <TableRow key={item.name}>
+                              <TableCell className="font-medium">
+                                {index === 0 && <span className="text-yellow-500">🥇</span>}
+                                {index === 1 && <span className="text-gray-400">🥈</span>}
+                                {index === 2 && <span className="text-amber-600">🥉</span>}
+                                {index > 2 && <span className="text-muted-foreground">{index + 1}</span>}
+                              </TableCell>
+                              <TableCell className="font-medium">{item.name}</TableCell>
+                              <TableCell className="text-right font-semibold">{item.value}</TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Top Companies */}
+                  <div>
+                    <h4 className="text-sm font-semibold mb-3 text-foreground">Top Companies</h4>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">Rank</TableHead>
+                          <TableHead>Company</TableHead>
+                          <TableHead className="text-right">Revenue</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {salesByCompany
+                          .sort((a, b) => b.value - a.value)
+                          .slice(0, 5)
+                          .map((item, index) => (
+                            <TableRow key={item.name}>
+                              <TableCell className="font-medium">
+                                {index === 0 && <span className="text-yellow-500">🥇</span>}
+                                {index === 1 && <span className="text-gray-400">🥈</span>}
+                                {index === 2 && <span className="text-amber-600">🥉</span>}
+                                {index > 2 && <span className="text-muted-foreground">{index + 1}</span>}
+                              </TableCell>
+                              <TableCell className="font-medium">{item.name}</TableCell>
+                              <TableCell className="text-right font-semibold">{item.value}</TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
+                  No sales data yet
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
