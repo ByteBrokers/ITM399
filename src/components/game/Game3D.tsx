@@ -574,14 +574,52 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
 
     const bodyColor = parseInt(charData.body_color.replace("#", "0x"));
     const skinColor = parseInt(charData.skin_color.replace("#", "0x"));
+    const facialExpression = charData.facial_expression || "happy";
+    const shirtPattern = charData.shirt_pattern || "solid";
 
-    // Torso (rectangular block)
+    // Torso (rectangular block) with pattern
     const torsoGeometry = new THREE.BoxGeometry(
       1.2 * charData.width,
       1.8 * charData.height,
       0.6 * charData.width
     );
-    const torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    
+    // Create texture for shirt pattern
+    let torsoMaterial;
+    if (shirtPattern === "stripes") {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = charData.body_color;
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 128; i += 16) {
+        ctx.fillRect(i, 0, 8, 128);
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      torsoMaterial = new THREE.MeshLambertMaterial({ map: texture });
+    } else if (shirtPattern === "dots") {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = charData.body_color;
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#ffffff';
+      for (let x = 16; x < 128; x += 32) {
+        for (let y = 16; y < 128; y += 32) {
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      const texture = new THREE.CanvasTexture(canvas);
+      torsoMaterial = new THREE.MeshLambertMaterial({ map: texture });
+    } else {
+      torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    }
+    
     const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
     torso.position.y = 1.8 * charData.height;
     player.add(torso);
@@ -597,22 +635,54 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
     head.position.y = 3.1 * charData.height;
     player.add(head);
 
-    // Eyes
-    const eyeGeometry = new THREE.BoxGeometry(0.15 * charData.height, 0.15 * charData.height, 0.05);
+    // Eyes - different styles based on expression
+    const eyeGeometry = facialExpression === "wink" 
+      ? new THREE.BoxGeometry(0.15 * charData.height, 0.05 * charData.height, 0.05)
+      : facialExpression === "surprised"
+      ? new THREE.BoxGeometry(0.2 * charData.height, 0.2 * charData.height, 0.05)
+      : new THREE.BoxGeometry(0.15 * charData.height, 0.15 * charData.height, 0.05);
     const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     leftEye.position.set(-0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
     player.add(leftEye);
     
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
+    if (facialExpression === "wink") {
+      rightEye.scale.y = 3;
+      rightEye.position.set(0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
+    } else {
+      rightEye.position.set(0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
+    }
     player.add(rightEye);
 
-    // Mouth
-    const mouthGeometry = new THREE.BoxGeometry(0.3 * charData.height, 0.08 * charData.height, 0.05);
+    // Mouth - different shapes based on expression
+    let mouthGeometry;
+    if (facialExpression === "happy") {
+      mouthGeometry = new THREE.BoxGeometry(0.3 * charData.height, 0.08 * charData.height, 0.05);
+    } else if (facialExpression === "sad") {
+      mouthGeometry = new THREE.BoxGeometry(0.3 * charData.height, 0.08 * charData.height, 0.05);
+    } else if (facialExpression === "surprised") {
+      mouthGeometry = new THREE.BoxGeometry(0.15 * charData.height, 0.15 * charData.height, 0.05);
+    } else if (facialExpression === "angry") {
+      mouthGeometry = new THREE.BoxGeometry(0.35 * charData.height, 0.06 * charData.height, 0.05);
+    } else {
+      mouthGeometry = new THREE.BoxGeometry(0.3 * charData.height, 0.08 * charData.height, 0.05);
+    }
+    
     const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
-    mouth.position.set(0, 2.85 * charData.height, 0.31 * charData.width);
+    
+    if (facialExpression === "sad") {
+      mouth.position.set(0, 2.8 * charData.height, 0.31 * charData.width);
+      mouth.rotation.z = Math.PI;
+    } else if (facialExpression === "angry") {
+      mouth.position.set(0, 2.82 * charData.height, 0.31 * charData.width);
+      mouth.rotation.z = Math.PI * 0.05;
+    } else if (facialExpression === "surprised") {
+      mouth.position.set(0, 2.82 * charData.height, 0.31 * charData.width);
+    } else {
+      mouth.position.set(0, 2.85 * charData.height, 0.31 * charData.width);
+    }
     player.add(mouth);
 
     // Hair (blocky top)
@@ -705,6 +775,8 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
           width: data.width,
           body_color: data.body_color,
           skin_color: data.skin_color,
+          facial_expression: data.facial_expression,
+          shirt_pattern: data.shirt_pattern,
         })
         .eq("user_id", userId);
 
