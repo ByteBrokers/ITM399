@@ -846,8 +846,14 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
 
     {/* Questionnaire Editor Modal */}
     {showQuestionnaireEditor && (
-      <div className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
-        <div className="bg-card border border-border rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 z-[60] bg-gradient-to-br from-primary/10 via-background to-primary/20 backdrop-blur-xl flex items-center justify-center p-4 overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/15 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl"></div>
+        </div>
+        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative z-10">
           <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border p-6 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-foreground">Update Your Information</h2>
             <Button onClick={() => setShowQuestionnaireEditor(false)} variant="ghost" size="icon" className="rounded-full">
