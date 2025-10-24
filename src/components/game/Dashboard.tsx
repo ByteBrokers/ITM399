@@ -327,7 +327,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
     <>
       <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
         <div className="bg-card border border-border rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border p-6 flex justify-between items-center">
+          <div className="sticky top-0 z-10 bg-card backdrop-blur-xl border-b border-border p-6 flex justify-between items-center shadow-sm">
             <h2 className="text-2xl font-bold text-foreground">
               Analytics Dashboard
             </h2>
