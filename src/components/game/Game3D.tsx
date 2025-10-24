@@ -194,12 +194,37 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     directionalLight.castShadow = true;
     scene.add(directionalLight);
 
-    // Ground - city concrete/pavement
-    const groundGeometry = new THREE.PlaneGeometry(200, 200);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+    // Ground - grass village platform
+    const groundGeometry = new THREE.PlaneGeometry(150, 150);
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x90ee90 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     scene.add(ground);
+
+    // Boundary walls - wooden fence around the village
+    const fenceMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+    const fenceHeight = 5;
+    const fenceThickness = 1;
+    
+    // North wall
+    const northWall = new THREE.Mesh(new THREE.BoxGeometry(150, fenceHeight, fenceThickness), fenceMaterial);
+    northWall.position.set(0, fenceHeight / 2, -75);
+    scene.add(northWall);
+    
+    // South wall
+    const southWall = new THREE.Mesh(new THREE.BoxGeometry(150, fenceHeight, fenceThickness), fenceMaterial);
+    southWall.position.set(0, fenceHeight / 2, 75);
+    scene.add(southWall);
+    
+    // East wall
+    const eastWall = new THREE.Mesh(new THREE.BoxGeometry(fenceThickness, fenceHeight, 150), fenceMaterial);
+    eastWall.position.set(75, fenceHeight / 2, 0);
+    scene.add(eastWall);
+    
+    // West wall
+    const westWall = new THREE.Mesh(new THREE.BoxGeometry(fenceThickness, fenceHeight, 150), fenceMaterial);
+    westWall.position.set(-75, fenceHeight / 2, 0);
+    scene.add(westWall);
     
     // Add clouds to the sky
     createClouds(scene);
@@ -326,80 +351,38 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   };
 
   const createCityEnvironment = (scene: THREE.Scene) => {
-    // Create roads - asphalt-like
-    const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x3a3a3a });
+    // Village paths - dirt paths
+    const pathMaterial = new THREE.MeshLambertMaterial({ color: 0xc4a574 });
     
-    // Main cross roads
-    const horizontalRoad = new THREE.Mesh(
-      new THREE.PlaneGeometry(120, 8),
-      roadMaterial
-    );
-    horizontalRoad.rotation.x = -Math.PI / 2;
-    horizontalRoad.position.y = 0.01;
-    scene.add(horizontalRoad);
+    // Main horizontal path
+    const mainPath = new THREE.Mesh(new THREE.PlaneGeometry(140, 8), pathMaterial);
+    mainPath.rotation.x = -Math.PI / 2;
+    mainPath.position.y = 0.01;
+    scene.add(mainPath);
 
-    const verticalRoad = new THREE.Mesh(
-      new THREE.PlaneGeometry(8, 120),
-      roadMaterial
-    );
-    verticalRoad.rotation.x = -Math.PI / 2;
-    verticalRoad.position.y = 0.01;
-    scene.add(verticalRoad);
-
-    // Road markings (yellow lines)
-    const markingMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const horizontalMarking = new THREE.Mesh(
-      new THREE.PlaneGeometry(120, 0.2),
-      markingMaterial
-    );
-    horizontalMarking.rotation.x = -Math.PI / 2;
-    horizontalMarking.position.y = 0.02;
-    scene.add(horizontalMarking);
-
-    const verticalMarking = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.2, 120),
-      markingMaterial
-    );
-    verticalMarking.rotation.x = -Math.PI / 2;
-    verticalMarking.position.y = 0.02;
-    scene.add(verticalMarking);
-
-    // Add sidewalks
-    const sidewalkMaterial = new THREE.MeshLambertMaterial({ color: 0x9e9e9e });
-    const sidewalkPositions = [
-      { x: 0, z: 5, width: 120, length: 2 },
-      { x: 0, z: -5, width: 120, length: 2 },
-      { x: 5, z: 0, width: 2, length: 120 },
-      { x: -5, z: 0, width: 2, length: 120 }
-    ];
-
-    sidewalkPositions.forEach(pos => {
-      const sidewalk = new THREE.Mesh(
-        new THREE.PlaneGeometry(pos.width, pos.length),
-        sidewalkMaterial
-      );
-      sidewalk.rotation.x = -Math.PI / 2;
-      sidewalk.position.set(pos.x, 0.015, pos.z);
-      scene.add(sidewalk);
-    });
+    // Vertical path
+    const verticalPath = new THREE.Mesh(new THREE.PlaneGeometry(8, 140), pathMaterial);
+    verticalPath.rotation.x = -Math.PI / 2;
+    verticalPath.position.y = 0.01;
+    scene.add(verticalPath);
 
     // Add paths to company buildings
-    const buildingRoads = [
-      { startX: 0, startZ: 0, endX: -25, endZ: -25 },
-      { startX: 0, startZ: 0, endX: 25, endZ: -25 },
-      { startX: 0, startZ: 0, endX: -25, endZ: 25 },
-      { startX: 0, startZ: 0, endX: 25, endZ: 25 }
+    const buildingPaths = [
+      { startX: 0, startZ: 0, endX: -30, endZ: -30 },
+      { startX: 0, startZ: 0, endX: 30, endZ: -30 },
+      { startX: 0, startZ: 0, endX: -30, endZ: 30 },
+      { startX: 0, startZ: 0, endX: 30, endZ: 30 }
     ];
 
-    buildingRoads.forEach(path => {
+    buildingPaths.forEach(path => {
       const deltaX = path.endX - path.startX;
       const deltaZ = path.endZ - path.startZ;
       const length = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
       const angle = Math.atan2(deltaZ, deltaX);
       
       const pathMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(length, 6),
-        roadMaterial
+        new THREE.PlaneGeometry(length, 4),
+        pathMaterial
       );
       pathMesh.rotation.x = -Math.PI / 2;
       pathMesh.rotation.z = -angle;
@@ -411,36 +394,42 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(pathMesh);
     });
 
-    // Create background city buildings (Roblox-style blocky)
-    const backgroundBuildings = [
-      { x: -60, z: -60, height: 25, color: 0x5a5a5a },
-      { x: -60, z: 0, height: 30, color: 0x6a6a6a },
-      { x: -60, z: 60, height: 20, color: 0x4a4a4a },
-      { x: 60, z: -60, height: 28, color: 0x505050 },
-      { x: 60, z: 0, height: 35, color: 0x5a5a5a },
-      { x: 60, z: 60, height: 22, color: 0x4a4a4a },
-      { x: 0, z: -60, height: 26, color: 0x555555 },
-      { x: 0, z: 60, height: 24, color: 0x5f5f5f }
+    // Trees around the village
+    const treeTrunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+    const treeLeaveMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+    
+    const treePositions = [
+      { x: -60, z: -60 }, { x: -60, z: 60 }, { x: 60, z: -60 }, { x: 60, z: 60 },
+      { x: -50, z: 0 }, { x: 50, z: 0 }, { x: 0, z: -50 }, { x: 0, z: 50 },
+      { x: -30, z: -60 }, { x: 30, z: -60 }, { x: -30, z: 60 }, { x: 30, z: 60 }
     ];
+    
+    treePositions.forEach(pos => {
+      // Tree trunk
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 6), treeTrunkMaterial);
+      trunk.position.set(pos.x, 3, pos.z);
+      scene.add(trunk);
+      
+      // Tree leaves
+      const leaves = new THREE.Mesh(new THREE.SphereGeometry(3), treeLeaveMaterial);
+      leaves.position.set(pos.x, 7, pos.z);
+      scene.add(leaves);
+    });
 
-    backgroundBuildings.forEach(bldg => {
-      const building = new THREE.Mesh(
-        new THREE.BoxGeometry(15, bldg.height, 15),
-        new THREE.MeshLambertMaterial({ color: bldg.color })
-      );
-      building.position.set(bldg.x, bldg.height / 2, bldg.z);
-      scene.add(building);
-
-      // Add windows
-      for (let i = 0; i < 5; i++) {
-        const windowRow = new THREE.Mesh(
-          new THREE.PlaneGeometry(12, 2),
-          new THREE.MeshBasicMaterial({ color: 0xffff99 })
-        );
-        windowRow.position.set(bldg.x, 5 + i * 4, bldg.z > 0 ? bldg.z - 7.6 : bldg.z + 7.6);
-        if (bldg.z > 0) windowRow.rotation.y = Math.PI;
-        scene.add(windowRow);
-      }
+    // Benches and decorations
+    const benchMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+    const benchPositions = [
+      { x: 20, z: 20 }, { x: -20, z: 20 }, { x: 20, z: -20 }, { x: -20, z: -20 }
+    ];
+    
+    benchPositions.forEach(pos => {
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(4, 1, 1.5), benchMaterial);
+      bench.position.set(pos.x, 0.5, pos.z);
+      scene.add(bench);
+      
+      const backrest = new THREE.Mesh(new THREE.BoxGeometry(4, 2, 0.3), benchMaterial);
+      backrest.position.set(pos.x, 1.5, pos.z - 0.6);
+      scene.add(backrest);
     });
 
     // Add logo to the sky (parallel to user at startup)
@@ -733,73 +722,49 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const building = new THREE.Group();
       const company = companies[companyIndex];
 
-      // Main building - much taller and more prominent (Roblox-style skyscraper)
-      const storeGeometry = new THREE.BoxGeometry(16, 40, 16);
+      // Main building - village shop style (smaller and cozy)
+      const storeGeometry = new THREE.BoxGeometry(15, 12, 15);
       const storeMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const store = new THREE.Mesh(storeGeometry, storeMaterial);
-      store.position.y = 20;
+      store.position.y = 6;
       building.add(store);
 
       // Add glowing outline effect
-      const outlineGeometry = new THREE.BoxGeometry(16.5, 40.5, 16.5);
+      const outlineGeometry = new THREE.BoxGeometry(15.5, 12.5, 15.5);
       const outlineMaterial = new THREE.MeshBasicMaterial({ 
         color: company.color, 
         transparent: true, 
-        opacity: 0.4,
+        opacity: 0.3,
         side: THREE.BackSide 
       });
       const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
-      outline.position.y = 20;
+      outline.position.y = 6;
       building.add(outline);
 
-      // Add windows to building
-      for (let floor = 0; floor < 8; floor++) {
-        const windowRowFront = new THREE.Mesh(
-          new THREE.PlaneGeometry(14, 3),
-          new THREE.MeshBasicMaterial({ color: 0xffffaa })
-        );
-        windowRowFront.position.set(0, 5 + floor * 5, 8.1);
-        building.add(windowRowFront);
+      // Windows (front)
+      const windowMaterial = new THREE.MeshBasicMaterial({ color: 0xffffcc });
+      const window1 = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), windowMaterial);
+      window1.position.set(-3, 6, 7.6);
+      building.add(window1);
+      
+      const window2 = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), windowMaterial);
+      window2.position.set(3, 6, 7.6);
+      building.add(window2);
 
-        const windowRowBack = new THREE.Mesh(
-          new THREE.PlaneGeometry(14, 3),
-          new THREE.MeshBasicMaterial({ color: 0xffffaa })
-        );
-        windowRowBack.position.set(0, 5 + floor * 5, -8.1);
-        windowRowBack.rotation.y = Math.PI;
-        building.add(windowRowBack);
+      // Door
+      const doorGeometry = new THREE.PlaneGeometry(3, 5);
+      const doorMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+      const door = new THREE.Mesh(doorGeometry, doorMaterial);
+      door.position.set(0, 2.5, 7.6);
+      building.add(door);
 
-        const windowRowLeft = new THREE.Mesh(
-          new THREE.PlaneGeometry(14, 3),
-          new THREE.MeshBasicMaterial({ color: 0xffffaa })
-        );
-        windowRowLeft.position.set(-8.1, 5 + floor * 5, 0);
-        windowRowLeft.rotation.y = Math.PI / 2;
-        building.add(windowRowLeft);
-
-        const windowRowRight = new THREE.Mesh(
-          new THREE.PlaneGeometry(14, 3),
-          new THREE.MeshBasicMaterial({ color: 0xffffaa })
-        );
-        windowRowRight.position.set(8.1, 5 + floor * 5, 0);
-        windowRowRight.rotation.y = -Math.PI / 2;
-        building.add(windowRowRight);
-      }
-
-      // Top roof section
-      const roofGeometry = new THREE.BoxGeometry(17, 2, 17);
-      const roofMaterial = new THREE.MeshLambertMaterial({ color: company.color });
+      // Triangular roof
+      const roofGeometry = new THREE.ConeGeometry(11, 4, 4);
+      const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-      roof.position.y = 41;
+      roof.position.y = 14;
+      roof.rotation.y = Math.PI / 4;
       building.add(roof);
-
-      // Add rotating beacon on top
-      const beaconGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 8);
-      const beaconMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-      const beacon = new THREE.Mesh(beaconGeometry, beaconMaterial);
-      beacon.position.y = 43;
-      beacon.userData.isBeacon = true;
-      building.add(beacon);
 
       // Add company name sign at entrance
       const canvas = document.createElement('canvas');
