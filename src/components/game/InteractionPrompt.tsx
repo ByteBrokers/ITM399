@@ -10,13 +10,7 @@ interface InteractionPromptProps {
 
 const InteractionPrompt = ({ company, dataTypes, onSell, onClose }: InteractionPromptProps) => {
   return (
-    <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 bg-black/90 backdrop-blur-lg text-white p-6 rounded-xl min-w-[300px] z-50">
-      <button 
-        onClick={onClose} 
-        className="absolute top-2 right-2 text-white hover:text-destructive text-3xl leading-none font-bold cursor-pointer z-10 w-8 h-8 flex items-center justify-center"
-      >
-        ×
-      </button>
+    <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 bg-card/95 backdrop-blur-xl border border-border shadow-xl text-foreground p-6 rounded-xl min-w-[300px] z-50">
       <h3 className="text-xl font-bold mb-2">{company.name}</h3>
       <p className="text-sm text-muted-foreground mb-4">{company.description}</p>
       <div className="space-y-2">
@@ -35,6 +29,9 @@ const InteractionPrompt = ({ company, dataTypes, onSell, onClose }: InteractionP
           }
           return null;
         })}
+      </div>
+      <div className="mt-4 pt-4 border-t border-border text-center text-sm text-muted-foreground">
+        Walk away to close
       </div>
     </div>
   );
