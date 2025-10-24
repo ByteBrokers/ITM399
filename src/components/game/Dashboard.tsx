@@ -700,7 +700,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
               </CardHeader>
               <CardContent>
                 {salesByDataType.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={350}>
+                  <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
                         data={salesByDataType}
@@ -708,7 +708,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                         cy="45%"
                         labelLine={true}
                         label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                        outerRadius={90}
+                        outerRadius={80}
                         fill="hsl(var(--primary))"
                         dataKey="value"
                         stroke="hsl(var(--background))"
@@ -753,7 +753,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
                     No sales data yet
                   </div>
                 )}
@@ -780,7 +780,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="max-h-[400px] overflow-auto">
               {currentInventory.length > 0 ? (
                 <Table>
                   <TableHeader>
