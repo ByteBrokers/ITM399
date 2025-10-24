@@ -50,6 +50,7 @@ interface DashboardProps {
   characterData: CharacterCustomizationData;
   onClose: () => void;
   onEditCharacter: () => void;
+  onUpdateInfo: () => void;
   openWithdrawal?: boolean;
 }
 
@@ -75,7 +76,7 @@ interface CurrentInventoryItem {
   potentialEarnings: number;
 }
 
-const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdrawal }: DashboardProps) => {
+const Dashboard = ({ userId, characterData, onClose, onEditCharacter, onUpdateInfo, openWithdrawal }: DashboardProps) => {
   const [totalEarnings, setTotalEarnings] = useState(0);
   const [monthlyEarnings, setMonthlyEarnings] = useState(0);
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
@@ -83,7 +84,6 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
   const [salesByCompany, setSalesByCompany] = useState<CompanyData[]>([]);
   const [salesByDataType, setSalesByDataType] = useState<DataTypeData[]>([]);
   const [currentInventory, setCurrentInventory] = useState<CurrentInventoryItem[]>([]);
-  const [showQuestionnaireEditor, setShowQuestionnaireEditor] = useState(false);
   const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [withdrawalDetails, setWithdrawalDetails] = useState({
@@ -91,26 +91,9 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
     bankAccount: "",
     email: "",
   });
-  const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData>({
-    name: "",
-    age: "",
-    location: "",
-    occupation: "",
-    devices: [],
-    social_media: [],
-    screen_time: "",
-    shopping_freq: "",
-    shopping_categories: [],
-    fitness: "",
-    interests: "",
-    privacy_concern: "",
-    data_sharing: "",
-    email: "",
-  });
 
   useEffect(() => {
     loadDashboardData();
-    loadQuestionnaireData();
   }, [userId]);
 
   useEffect(() => {
@@ -271,73 +254,6 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
     }
   };
 
-  const loadQuestionnaireData = async () => {
-    const { data } = await supabase
-      .from("questionnaire_responses")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (data) {
-      setQuestionnaireData({
-        name: data.name || "",
-        age: data.age || "",
-        location: data.location || "",
-        occupation: data.occupation || "",
-        devices: data.devices || [],
-        social_media: data.social_media || [],
-        screen_time: data.screen_time || "",
-        shopping_freq: data.shopping_freq || "",
-        shopping_categories: data.shopping_categories || [],
-        fitness: data.fitness || "",
-        interests: data.interests || "",
-        privacy_concern: data.privacy_concern || "",
-        data_sharing: data.data_sharing || "",
-        email: data.email || "",
-      });
-    }
-  };
-
-  const handleCheckboxChange = (field: keyof QuestionnaireData, value: string, checked: boolean) => {
-    const currentValues = (questionnaireData[field] as string[]) || [];
-    setQuestionnaireData({
-      ...questionnaireData,
-      [field]: checked
-        ? [...currentValues, value]
-        : currentValues.filter((v) => v !== value),
-    });
-  };
-
-  const handleUpdateQuestionnaire = async () => {
-    try {
-      await supabase
-        .from("questionnaire_responses")
-        .update({
-          name: questionnaireData.name,
-          age: questionnaireData.age,
-          location: questionnaireData.location,
-          occupation: questionnaireData.occupation,
-          devices: questionnaireData.devices,
-          social_media: questionnaireData.social_media,
-          screen_time: questionnaireData.screen_time,
-          shopping_freq: questionnaireData.shopping_freq,
-          shopping_categories: questionnaireData.shopping_categories,
-          fitness: questionnaireData.fitness,
-          interests: questionnaireData.interests,
-          privacy_concern: questionnaireData.privacy_concern,
-          data_sharing: questionnaireData.data_sharing,
-          email: questionnaireData.email,
-        })
-        .eq("user_id", userId);
-
-      toast.success("Information updated successfully!");
-      setShowQuestionnaireEditor(false);
-    } catch (error) {
-      console.error("Error updating questionnaire:", error);
-      toast.error("Failed to update information");
-    }
-  };
-
   const handleWithdrawal = () => {
     if (!withdrawalAmount || parseFloat(withdrawalAmount) <= 0) {
       toast.error("Please enter a valid amount");
@@ -369,7 +285,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
             </h2>
             <div className="flex gap-2">
               <Button 
-                onClick={() => setShowQuestionnaireEditor(true)} 
+                onClick={onUpdateInfo} 
                 variant="outline" 
                 size="sm"
               >
@@ -843,261 +759,6 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
         </div>
       </div>
     </div>
-
-    {/* Questionnaire Editor Modal */}
-    {showQuestionnaireEditor && (
-      <div className="fixed inset-0 z-[60] bg-gradient-to-br from-primary/10 via-background to-primary/20 backdrop-blur-xl flex items-center justify-center p-4 overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/15 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl"></div>
-        </div>
-        <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative z-10">
-          <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border p-6 flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-foreground">Update Your Information</h2>
-            <Button onClick={() => setShowQuestionnaireEditor(false)} variant="ghost" size="icon" className="rounded-full">
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Basic Information */}
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-name">Name</Label>
-                  <Input
-                    id="edit-name"
-                    value={questionnaireData.name}
-                    onChange={(e) => setQuestionnaireData({ ...questionnaireData, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-age">Age Range</Label>
-                  <Select value={questionnaireData.age} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, age: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="18-24">18-24</SelectItem>
-                      <SelectItem value="25-34">25-34</SelectItem>
-                      <SelectItem value="35-44">35-44</SelectItem>
-                      <SelectItem value="45-54">45-54</SelectItem>
-                      <SelectItem value="55+">55+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="edit-location">Location</Label>
-                  <Input
-                    id="edit-location"
-                    value={questionnaireData.location}
-                    onChange={(e) => setQuestionnaireData({ ...questionnaireData, location: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-occupation">Occupation</Label>
-                  <Input
-                    id="edit-occupation"
-                    value={questionnaireData.occupation}
-                    onChange={(e) => setQuestionnaireData({ ...questionnaireData, occupation: e.target.value })}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Digital Life */}
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Digital Life & Habits</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="mb-3 block">Devices You Use</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: "smartphone", label: "Smartphone" },
-                      { value: "laptop", label: "Laptop" },
-                      { value: "tablet", label: "Tablet" },
-                      { value: "smartwatch", label: "Smart Watch" },
-                      { value: "smarthome", label: "Smart Home Devices" },
-                    ].map((device) => (
-                      <div key={device.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`edit-${device.value}`}
-                          checked={questionnaireData.devices?.includes(device.value)}
-                          onCheckedChange={(checked) => handleCheckboxChange("devices", device.value, checked as boolean)}
-                        />
-                        <Label htmlFor={`edit-${device.value}`} className="cursor-pointer">{device.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="mb-3 block">Social Media Platforms</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: "facebook", label: "Facebook" },
-                      { value: "instagram", label: "Instagram" },
-                      { value: "twitter", label: "Twitter/X" },
-                      { value: "linkedin", label: "LinkedIn" },
-                      { value: "tiktok", label: "TikTok" },
-                      { value: "youtube", label: "YouTube" },
-                    ].map((platform) => (
-                      <div key={platform.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`edit-${platform.value}`}
-                          checked={questionnaireData.social_media?.includes(platform.value)}
-                          onCheckedChange={(checked) => handleCheckboxChange("social_media", platform.value, checked as boolean)}
-                        />
-                        <Label htmlFor={`edit-${platform.value}`} className="cursor-pointer">{platform.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-screen-time">Daily Hours Online</Label>
-                  <Select value={questionnaireData.screen_time} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, screen_time: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-3">1-3 hours</SelectItem>
-                      <SelectItem value="4-6">4-6 hours</SelectItem>
-                      <SelectItem value="7-9">7-9 hours</SelectItem>
-                      <SelectItem value="10+">10+ hours</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Shopping & Health */}
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Shopping & Health</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-shopping-freq">Online Shopping Frequency</Label>
-                  <Select value={questionnaireData.shopping_freq} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, shopping_freq: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="rarely">Rarely</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="mb-3 block">Shopping Categories</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: "clothing", label: "Clothing" },
-                      { value: "electronics", label: "Electronics" },
-                      { value: "food", label: "Food & Groceries" },
-                      { value: "books", label: "Books" },
-                      { value: "travel", label: "Travel" },
-                      { value: "health", label: "Health Products" },
-                    ].map((category) => (
-                      <div key={category.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`edit-${category.value}`}
-                          checked={questionnaireData.shopping_categories?.includes(category.value)}
-                          onCheckedChange={(checked) => handleCheckboxChange("shopping_categories", category.value, checked as boolean)}
-                        />
-                        <Label htmlFor={`edit-${category.value}`} className="cursor-pointer">{category.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-fitness">Fitness Tracking</Label>
-                  <Select value={questionnaireData.fitness} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, fitness: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes-regularly">Yes, regularly</SelectItem>
-                      <SelectItem value="yes-occasionally">Yes, occasionally</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-interests">Interests/Hobbies</Label>
-                  <Textarea
-                    id="edit-interests"
-                    value={questionnaireData.interests}
-                    onChange={(e) => setQuestionnaireData({ ...questionnaireData, interests: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Privacy */}
-            <Card className="border-border">
-              <CardHeader>
-                <CardTitle>Privacy & Data Sharing</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-privacy">Privacy Concern Level</Label>
-                  <Select value={questionnaireData.privacy_concern} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, privacy_concern: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="very-concerned">Very concerned</SelectItem>
-                      <SelectItem value="somewhat-concerned">Somewhat concerned</SelectItem>
-                      <SelectItem value="not-very-concerned">Not very concerned</SelectItem>
-                      <SelectItem value="not-concerned">Not concerned at all</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-data-sharing">Data Sharing for Benefits</Label>
-                  <Select value={questionnaireData.data_sharing} onValueChange={(value) => setQuestionnaireData({ ...questionnaireData, data_sharing: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="frequently">Frequently</SelectItem>
-                      <SelectItem value="sometimes">Sometimes</SelectItem>
-                      <SelectItem value="rarely">Rarely</SelectItem>
-                      <SelectItem value="never">Never</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex gap-3">
-              <Button onClick={() => setShowQuestionnaireEditor(false)} variant="outline" className="flex-1">
-                Cancel
-              </Button>
-              <Button onClick={handleUpdateQuestionnaire} className="flex-1">
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
 
     {/* Withdrawal Dialog */}
     <Dialog open={showWithdrawalDialog} onOpenChange={setShowWithdrawalDialog}>

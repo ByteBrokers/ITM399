@@ -1097,6 +1097,10 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
             setReturnToDashboard(true);
             setIsEditingCharacter(true);
           }}
+          onUpdateInfo={() => {
+            setShowDashboard(false);
+            setShowQuestionnaireEditor(true);
+          }}
           openWithdrawal={openWithdrawalOnDashboard}
         />
       )}
