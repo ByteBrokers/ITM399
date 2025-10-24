@@ -664,6 +664,48 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     rightLeg.position.set(0.35 * charData.width, 0.5 * charData.height, 0);
     player.add(rightLeg);
 
+    // Glow effect around player
+    const glowGeometry = new THREE.BoxGeometry(
+      1.5 * charData.width,
+      4 * charData.height,
+      0.8 * charData.width
+    );
+    const glowMaterial = new THREE.MeshBasicMaterial({ 
+      color: 0xffff00,
+      transparent: true,
+      opacity: 0.2,
+      side: THREE.BackSide
+    });
+    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+    glow.position.y = 2 * charData.height;
+    player.add(glow);
+
+    // Floating arrow above player
+    const arrowGroup = new THREE.Group();
+    
+    // Arrow shaft
+    const arrowShaft = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.1, 1.5),
+      new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    );
+    arrowShaft.position.y = 5 * charData.height;
+    arrowGroup.add(arrowShaft);
+    
+    // Arrow head (cone pointing down)
+    const arrowHead = new THREE.Mesh(
+      new THREE.ConeGeometry(0.3, 0.6, 4),
+      new THREE.MeshBasicMaterial({ color: 0xffff00 })
+    );
+    arrowHead.position.y = 4.2 * charData.height;
+    arrowHead.rotation.x = Math.PI; // Point downward
+    arrowGroup.add(arrowHead);
+    
+    // Store animation data
+    arrowGroup.userData.isPlayerArrow = true;
+    arrowGroup.userData.baseY = 5 * charData.height;
+    
+    player.add(arrowGroup);
+
     return player;
   };
 
@@ -887,6 +929,19 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         }
       });
     });
+
+    // Animate player arrow
+    if (playerRef.current) {
+      playerRef.current.children.forEach(child => {
+        if (child.userData.isPlayerArrow) {
+          // Bobbing animation
+          const bobAmount = Math.sin(Date.now() * 0.003) * 0.3;
+          child.position.y = child.userData.baseY + bobAmount;
+          // Gentle rotation
+          child.rotation.y += 0.02;
+        }
+      });
+    }
 
     if (sceneRef.current && cameraRef.current && rendererRef.current) {
       rendererRef.current.render(sceneRef.current, cameraRef.current);
