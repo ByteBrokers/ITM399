@@ -194,9 +194,9 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     directionalLight.castShadow = true;
     scene.add(directionalLight);
 
-    // Ground - natural grass color
+    // Ground - city concrete/pavement
     const groundGeometry = new THREE.PlaneGeometry(200, 200);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x6b8e23 });
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     scene.add(ground);
@@ -326,206 +326,80 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
   };
 
   const createCityEnvironment = (scene: THREE.Scene) => {
-    // Create footpaths - natural stone path color
-    const footpathMaterial = new THREE.MeshLambertMaterial({ color: 0xa89968 });
+    // Create roads - asphalt-like
+    const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x3a3a3a });
     
-    // Main cross footpaths
-    const horizontalPath = new THREE.Mesh(
-      new THREE.PlaneGeometry(120, 3),
-      footpathMaterial
+    // Main cross roads
+    const horizontalRoad = new THREE.Mesh(
+      new THREE.PlaneGeometry(120, 8),
+      roadMaterial
     );
-    horizontalPath.rotation.x = -Math.PI / 2;
-    horizontalPath.position.y = 0.01;
-    scene.add(horizontalPath);
+    horizontalRoad.rotation.x = -Math.PI / 2;
+    horizontalRoad.position.y = 0.01;
+    scene.add(horizontalRoad);
 
-    const verticalPath = new THREE.Mesh(
-      new THREE.PlaneGeometry(3, 120),
-      footpathMaterial
+    const verticalRoad = new THREE.Mesh(
+      new THREE.PlaneGeometry(8, 120),
+      roadMaterial
     );
-    verticalPath.rotation.x = -Math.PI / 2;
-    verticalPath.position.y = 0.01;
-    scene.add(verticalPath);
+    verticalRoad.rotation.x = -Math.PI / 2;
+    verticalRoad.position.y = 0.01;
+    scene.add(verticalRoad);
 
-    // Additional connecting paths
-    const sidePaths = [
-      { x: -25, z: 0, rotation: 0, width: 3, length: 50 },
-      { x: 25, z: 0, rotation: 0, width: 3, length: 50 },
-      { x: 0, z: -25, rotation: Math.PI / 2, width: 3, length: 50 },
-      { x: 0, z: 25, rotation: Math.PI / 2, width: 3, length: 50 }
+    // Road markings (yellow lines)
+    const markingMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const horizontalMarking = new THREE.Mesh(
+      new THREE.PlaneGeometry(120, 0.2),
+      markingMaterial
+    );
+    horizontalMarking.rotation.x = -Math.PI / 2;
+    horizontalMarking.position.y = 0.02;
+    scene.add(horizontalMarking);
+
+    const verticalMarking = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.2, 120),
+      markingMaterial
+    );
+    verticalMarking.rotation.x = -Math.PI / 2;
+    verticalMarking.position.y = 0.02;
+    scene.add(verticalMarking);
+
+    // Add sidewalks
+    const sidewalkMaterial = new THREE.MeshLambertMaterial({ color: 0x9e9e9e });
+    const sidewalkPositions = [
+      { x: 0, z: 5, width: 120, length: 2 },
+      { x: 0, z: -5, width: 120, length: 2 },
+      { x: 5, z: 0, width: 2, length: 120 },
+      { x: -5, z: 0, width: 2, length: 120 }
     ];
 
-    sidePaths.forEach(path => {
-      const sidePath = new THREE.Mesh(
-        new THREE.PlaneGeometry(path.length, path.width),
-        footpathMaterial
+    sidewalkPositions.forEach(pos => {
+      const sidewalk = new THREE.Mesh(
+        new THREE.PlaneGeometry(pos.width, pos.length),
+        sidewalkMaterial
       );
-      sidePath.rotation.x = -Math.PI / 2;
-      sidePath.rotation.z = path.rotation;
-      sidePath.position.set(path.x, 0.01, path.z);
-      scene.add(sidePath);
+      sidewalk.rotation.x = -Math.PI / 2;
+      sidewalk.position.set(pos.x, 0.015, pos.z);
+      scene.add(sidewalk);
     });
 
-    // Create trees (positioned away from footpaths)
-    const treePositions = [
-      { x: -15, z: -15 }, { x: -15, z: 15 }, { x: 15, z: -15 }, { x: 15, z: 15 },
-      { x: -35, z: -35 }, { x: -35, z: 35 }, { x: 35, z: -35 }, { x: 35, z: 35 },
-      { x: -40, z: -8 }, { x: 40, z: -8 }, { x: -8, z: -40 }, { x: 8, z: -40 },
-      { x: -40, z: 8 }, { x: 40, z: 8 }, { x: 8, z: 40 }, { x: -8, z: 40 },
-      { x: -20, z: -30 }, { x: 20, z: -30 }, { x: -20, z: 30 }, { x: 20, z: 30 }
+    // Add paths to company buildings
+    const buildingRoads = [
+      { startX: 0, startZ: 0, endX: -25, endZ: -25 },
+      { startX: 0, startZ: 0, endX: 25, endZ: -25 },
+      { startX: 0, startZ: 0, endX: -25, endZ: 25 },
+      { startX: 0, startZ: 0, endX: 25, endZ: 25 }
     ];
 
-    treePositions.forEach(pos => {
-      const tree = new THREE.Group();
-      
-      // Trunk - natural brown bark
-      const trunkGeometry = new THREE.CylinderGeometry(0.4, 0.5, 8);
-      const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
-      const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-      trunk.position.y = 4;
-      tree.add(trunk);
-
-      // Foliage - natural forest green
-      const foliageGeometry = new THREE.SphereGeometry(3, 8, 8);
-      const foliageMaterial = new THREE.MeshLambertMaterial({ color: 0x2d5a1e });
-      const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-      foliage.position.y = 10;
-      tree.add(foliage);
-
-      tree.position.set(pos.x, 0, pos.z);
-      scene.add(tree);
-    });
-
-    // Create benches - more scattered around
-    const benchPositions = [
-      { x: -8, z: -8 }, { x: 8, z: -8 }, { x: -8, z: 8 }, { x: 8, z: 8 },
-      { x: -18, z: 0 }, { x: 18, z: 0 }, { x: 0, z: -18 }, { x: 0, z: 18 },
-      { x: -30, z: -10 }, { x: 30, z: -10 }, { x: -30, z: 10 }, { x: 30, z: 10 },
-      { x: -10, z: -30 }, { x: 10, z: -30 }, { x: -10, z: 30 }, { x: 10, z: 30 },
-      { x: -22, z: -22 }, { x: 22, z: -22 }, { x: -22, z: 22 }, { x: 22, z: 22 }
-    ];
-
-    benchPositions.forEach(pos => {
-      const bench = new THREE.Group();
-
-      // Seat (proper size)
-      const seatGeometry = new THREE.BoxGeometry(3, 0.3, 1.2);
-      const seatMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
-      const seat = new THREE.Mesh(seatGeometry, seatMaterial);
-      seat.position.y = 1;
-      bench.add(seat);
-
-      // Backrest (proper size)
-      const backGeometry = new THREE.BoxGeometry(3, 1.5, 0.15);
-      const back = new THREE.Mesh(backGeometry, seatMaterial);
-      back.position.set(0, 1.8, -0.5);
-      bench.add(back);
-
-      // Legs (proper size)
-      for (let i = 0; i < 4; i++) {
-        const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1);
-        const legMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
-        const leg = new THREE.Mesh(legGeometry, legMaterial);
-        leg.position.set(i < 2 ? -1.2 : 1.2, 0.5, i % 2 === 0 ? 0.4 : -0.4);
-        bench.add(leg);
-      }
-
-      bench.position.set(pos.x, 0, pos.z);
-      scene.add(bench);
-    });
-
-    // Create bushes
-    const bushPositions = [
-      { x: -12, z: -12 }, { x: 12, z: -12 }, { x: -12, z: 12 }, { x: 12, z: 12 },
-      { x: -25, z: -5 }, { x: 25, z: -5 }, { x: -25, z: 5 }, { x: 25, z: 5 },
-      { x: -5, z: -25 }, { x: 5, z: -25 }, { x: -5, z: 25 }, { x: 5, z: 25 },
-      { x: -35, z: -20 }, { x: 35, z: -20 }, { x: -35, z: 20 }, { x: 35, z: 20 },
-      { x: -20, z: -35 }, { x: 20, z: -35 }, { x: -20, z: 35 }, { x: 20, z: 35 }
-    ];
-
-    bushPositions.forEach(pos => {
-      const bush = new THREE.Group();
-      
-      // Main bush body - darker natural green
-      const bushGeometry = new THREE.SphereGeometry(1.2, 6, 6);
-      const bushMaterial = new THREE.MeshLambertMaterial({ color: 0x1e4620 });
-      const bushMesh = new THREE.Mesh(bushGeometry, bushMaterial);
-      bushMesh.position.y = 0.8;
-      bushMesh.scale.set(1, 0.8, 1);
-      bush.add(bushMesh);
-      
-      // Add smaller spheres for texture
-      for (let i = 0; i < 3; i++) {
-        const smallBush = new THREE.Mesh(
-          new THREE.SphereGeometry(0.6, 5, 5),
-          new THREE.MeshLambertMaterial({ color: 0x3a6b1f })
-        );
-        const angle = (i / 3) * Math.PI * 2;
-        smallBush.position.set(
-          Math.cos(angle) * 0.7,
-          0.9,
-          Math.sin(angle) * 0.7
-        );
-        bush.add(smallBush);
-      }
-      
-      bush.position.set(pos.x, 0, pos.z);
-      scene.add(bush);
-    });
-
-    // Create decorative plants
-    const plantPositions = [
-      { x: -6, z: -6 }, { x: 6, z: 6 }, { x: -6, z: 6 }, { x: 6, z: -6 },
-      { x: -14, z: -8 }, { x: 14, z: -8 }, { x: -14, z: 8 }, { x: 14, z: 8 },
-      { x: -8, z: -14 }, { x: 8, z: -14 }, { x: -8, z: 14 }, { x: 8, z: 14 },
-      { x: -28, z: -18 }, { x: 28, z: -18 }, { x: -28, z: 18 }, { x: 28, z: 18 }
-    ];
-
-    plantPositions.forEach(pos => {
-      const plant = new THREE.Group();
-      
-      // Pot
-      const potGeometry = new THREE.CylinderGeometry(0.3, 0.25, 0.4, 8);
-      const potMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
-      const pot = new THREE.Mesh(potGeometry, potMaterial);
-      pot.position.y = 0.2;
-      plant.add(pot);
-      
-      // Leaves
-      for (let i = 0; i < 5; i++) {
-        const leafGeometry = new THREE.ConeGeometry(0.15, 0.8, 4);
-        const leafMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
-        const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-        const angle = (i / 5) * Math.PI * 2;
-        leaf.position.set(
-          Math.cos(angle) * 0.2,
-          0.6 + Math.random() * 0.3,
-          Math.sin(angle) * 0.2
-        );
-        leaf.rotation.z = Math.PI / 6;
-        plant.add(leaf);
-      }
-      
-      plant.position.set(pos.x, 0, pos.z);
-      scene.add(plant);
-    });
-
-    // Add paths leading directly to marketplaces
-    const marketplacePaths = [
-      { startX: 0, startZ: 0, endX: -25, endZ: -25 }, // Top-left marketplace
-      { startX: 0, startZ: 0, endX: 25, endZ: -25 },  // Top-right marketplace
-      { startX: 0, startZ: 0, endX: -25, endZ: 25 },  // Bottom-left marketplace
-      { startX: 0, startZ: 0, endX: 25, endZ: 25 }    // Bottom-right marketplace
-    ];
-
-    marketplacePaths.forEach(path => {
+    buildingRoads.forEach(path => {
       const deltaX = path.endX - path.startX;
       const deltaZ = path.endZ - path.startZ;
       const length = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
       const angle = Math.atan2(deltaZ, deltaX);
       
       const pathMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(length, 2.5),
-        footpathMaterial
+        new THREE.PlaneGeometry(length, 6),
+        roadMaterial
       );
       pathMesh.rotation.x = -Math.PI / 2;
       pathMesh.rotation.z = -angle;
@@ -535,6 +409,38 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         (path.startZ + path.endZ) / 2
       );
       scene.add(pathMesh);
+    });
+
+    // Create background city buildings (Roblox-style blocky)
+    const backgroundBuildings = [
+      { x: -60, z: -60, height: 25, color: 0x5a5a5a },
+      { x: -60, z: 0, height: 30, color: 0x6a6a6a },
+      { x: -60, z: 60, height: 20, color: 0x4a4a4a },
+      { x: 60, z: -60, height: 28, color: 0x505050 },
+      { x: 60, z: 0, height: 35, color: 0x5a5a5a },
+      { x: 60, z: 60, height: 22, color: 0x4a4a4a },
+      { x: 0, z: -60, height: 26, color: 0x555555 },
+      { x: 0, z: 60, height: 24, color: 0x5f5f5f }
+    ];
+
+    backgroundBuildings.forEach(bldg => {
+      const building = new THREE.Mesh(
+        new THREE.BoxGeometry(15, bldg.height, 15),
+        new THREE.MeshLambertMaterial({ color: bldg.color })
+      );
+      building.position.set(bldg.x, bldg.height / 2, bldg.z);
+      scene.add(building);
+
+      // Add windows
+      for (let i = 0; i < 5; i++) {
+        const windowRow = new THREE.Mesh(
+          new THREE.PlaneGeometry(12, 2),
+          new THREE.MeshBasicMaterial({ color: 0xffff99 })
+        );
+        windowRow.position.set(bldg.x, 5 + i * 4, bldg.z > 0 ? bldg.z - 7.6 : bldg.z + 7.6);
+        if (bldg.z > 0) windowRow.rotation.y = Math.PI;
+        scene.add(windowRow);
+      }
     });
 
     // Add logo to the sky (parallel to user at startup)
@@ -647,66 +553,32 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       });
     }
 
-    // Create decorative small shops
-    const shopPositions = [
-      { x: -40, z: -15, color: 0xe6b800 },
-      { x: -40, z: 15, color: 0xcc7a00 },
-      { x: 40, z: -15, color: 0x006699 },
-      { x: 40, z: 15, color: 0x99004d },
-      { x: -15, z: -40, color: 0x009933 },
-      { x: 15, z: -40, color: 0x8b008b },
-      { x: -15, z: 40, color: 0xff6600 },
-      { x: 15, z: 40, color: 0x4d4d4d }
+    // Street lights at intersections
+    const streetLightPositions = [
+      { x: -10, z: -10 }, { x: 10, z: -10 },
+      { x: -10, z: 10 }, { x: 10, z: 10 }
     ];
 
-    shopPositions.forEach(pos => {
-      const shop = new THREE.Group();
-
-      // Building (taller and more realistic)
-      const buildingGeometry = new THREE.BoxGeometry(6, 6, 5);
-      const buildingMaterial = new THREE.MeshLambertMaterial({ color: pos.color });
-      const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-      building.position.y = 3;
-      shop.add(building);
-
-      // Simple roof
-      const roofGeometry = new THREE.BoxGeometry(6.5, 0.4, 5.5);
-      const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
-      const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-      roof.position.y = 6.2;
-      shop.add(roof);
-
-      shop.position.set(pos.x, 0, pos.z);
-      scene.add(shop);
-    });
-
-    // Create lampposts
-    const lamppostPositions = [
-      { x: -5, z: -5 }, { x: -5, z: 5 }, { x: 5, z: -5 }, { x: 5, z: 5 },
-      { x: -15, z: 0 }, { x: 15, z: 0 }, { x: 0, z: -15 }, { x: 0, z: 15 },
-      { x: -25, z: -12 }, { x: 25, z: -12 }, { x: -25, z: 12 }, { x: 25, z: 12 }
-    ];
-
-    lamppostPositions.forEach(pos => {
+    streetLightPositions.forEach(pos => {
       const lamppost = new THREE.Group();
 
-      // Post (taller)
-      const postGeometry = new THREE.CylinderGeometry(0.12, 0.12, 6);
-      const postMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
+      // Post
+      const postGeometry = new THREE.CylinderGeometry(0.15, 0.15, 8);
+      const postMaterial = new THREE.MeshLambertMaterial({ color: 0x2c2c2c });
       const post = new THREE.Mesh(postGeometry, postMaterial);
-      post.position.y = 3;
+      post.position.y = 4;
       lamppost.add(post);
 
       // Light fixture
-      const lightGeometry = new THREE.SphereGeometry(0.35);
-      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffff99 });
+      const lightGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+      const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
       const light = new THREE.Mesh(lightGeometry, lightMaterial);
-      light.position.y = 6;
+      light.position.y = 8;
       lamppost.add(light);
 
       // Point light for illumination
-      const pointLight = new THREE.PointLight(0xffff99, 0.5, 12);
-      pointLight.position.y = 6;
+      const pointLight = new THREE.PointLight(0xffffff, 1, 20);
+      pointLight.position.y = 8;
       lamppost.add(pointLight);
 
       lamppost.position.set(pos.x, 0, pos.z);
@@ -861,40 +733,94 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       const building = new THREE.Group();
       const company = companies[companyIndex];
 
-      // Make store building taller and more distinctive
-      const storeGeometry = new THREE.BoxGeometry(12, 12, 10);
+      // Main building - much taller and more prominent (Roblox-style skyscraper)
+      const storeGeometry = new THREE.BoxGeometry(16, 40, 16);
       const storeMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const store = new THREE.Mesh(storeGeometry, storeMaterial);
-      store.position.y = 6;
+      store.position.y = 20;
       building.add(store);
 
       // Add glowing outline effect
-      const outlineGeometry = new THREE.BoxGeometry(12.5, 12.5, 10.5);
+      const outlineGeometry = new THREE.BoxGeometry(16.5, 40.5, 16.5);
       const outlineMaterial = new THREE.MeshBasicMaterial({ 
         color: company.color, 
         transparent: true, 
-        opacity: 0.3,
+        opacity: 0.4,
         side: THREE.BackSide 
       });
       const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
-      outline.position.y = 6;
+      outline.position.y = 20;
       building.add(outline);
 
-      // Different colored roof
-      const roofGeometry = new THREE.ConeGeometry(9, 4, 4);
+      // Add windows to building
+      for (let floor = 0; floor < 8; floor++) {
+        const windowRowFront = new THREE.Mesh(
+          new THREE.PlaneGeometry(14, 3),
+          new THREE.MeshBasicMaterial({ color: 0xffffaa })
+        );
+        windowRowFront.position.set(0, 5 + floor * 5, 8.1);
+        building.add(windowRowFront);
+
+        const windowRowBack = new THREE.Mesh(
+          new THREE.PlaneGeometry(14, 3),
+          new THREE.MeshBasicMaterial({ color: 0xffffaa })
+        );
+        windowRowBack.position.set(0, 5 + floor * 5, -8.1);
+        windowRowBack.rotation.y = Math.PI;
+        building.add(windowRowBack);
+
+        const windowRowLeft = new THREE.Mesh(
+          new THREE.PlaneGeometry(14, 3),
+          new THREE.MeshBasicMaterial({ color: 0xffffaa })
+        );
+        windowRowLeft.position.set(-8.1, 5 + floor * 5, 0);
+        windowRowLeft.rotation.y = Math.PI / 2;
+        building.add(windowRowLeft);
+
+        const windowRowRight = new THREE.Mesh(
+          new THREE.PlaneGeometry(14, 3),
+          new THREE.MeshBasicMaterial({ color: 0xffffaa })
+        );
+        windowRowRight.position.set(8.1, 5 + floor * 5, 0);
+        windowRowRight.rotation.y = -Math.PI / 2;
+        building.add(windowRowRight);
+      }
+
+      // Top roof section
+      const roofGeometry = new THREE.BoxGeometry(17, 2, 17);
       const roofMaterial = new THREE.MeshLambertMaterial({ color: company.color });
       const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-      roof.position.y = 14;
-      roof.rotation.y = Math.PI / 4;
+      roof.position.y = 41;
       building.add(roof);
 
       // Add rotating beacon on top
-      const beaconGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8);
+      const beaconGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 8);
       const beaconMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
       const beacon = new THREE.Mesh(beaconGeometry, beaconMaterial);
-      beacon.position.y = 15.5;
+      beacon.position.y = 43;
       beacon.userData.isBeacon = true;
       building.add(beacon);
+
+      // Add company name sign at entrance
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 60px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(company.name, canvas.width / 2, canvas.height / 2);
+      }
+      const signTexture = new THREE.CanvasTexture(canvas);
+      const signMaterial = new THREE.MeshBasicMaterial({ map: signTexture });
+      const signMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(8, 2),
+        signMaterial
+      );
+      signMesh.position.set(0, 3, 8.1);
+      building.add(signMesh);
 
       building.position.set(x, 0, z);
       building.userData = company;
