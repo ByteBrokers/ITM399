@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Package, Clock, DollarSign, TrendingUp, Users } from "lucide-react";
+import { ArrowLeft, Package, Clock, DollarSign, TrendingUp, Users, ShoppingCart, Trash2, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 
 interface DataListing {
@@ -23,6 +26,18 @@ interface RecentTransaction {
   company: string;
 }
 
+interface CartItem {
+  dataType: string;
+  quantity: number;
+  pricePerUnit: number;
+}
+
+interface CheckoutDetails {
+  companyName: string;
+  contactEmail: string;
+  businessAddress: string;
+}
+
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const [dataListings, setDataListings] = useState<DataListing[]>([]);
@@ -30,6 +45,14 @@ const BuyerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [totalDataPoints, setTotalDataPoints] = useState(0);
   const [totalSellers, setTotalSellers] = useState(0);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutDetails>({
+    companyName: "",
+    contactEmail: "",
+    businessAddress: "",
+  });
 
   useEffect(() => {
     checkAuth();
@@ -147,6 +170,68 @@ const BuyerDashboard = () => {
     return `${diffDays}d ago`;
   };
 
+  const addToCart = (listing: DataListing) => {
+    const existingItem = cart.find(item => item.dataType === listing.dataType);
+    if (existingItem) {
+      setCart(cart.map(item =>
+        item.dataType === listing.dataType
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setCart([...cart, {
+        dataType: listing.dataType,
+        quantity: 1,
+        pricePerUnit: listing.averagePrice,
+      }]);
+    }
+    toast.success(`Added ${listing.dataType} to cart`);
+  };
+
+  const removeFromCart = (dataType: string) => {
+    setCart(cart.filter(item => item.dataType !== dataType));
+    toast.success("Removed from cart");
+  };
+
+  const updateQuantity = (dataType: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(dataType);
+      return;
+    }
+    setCart(cart.map(item =>
+      item.dataType === dataType ? { ...item, quantity } : item
+    ));
+  };
+
+  const getTotalCost = () => {
+    return cart.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0);
+  };
+
+  const getTotalItems = () => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    setShowCheckout(true);
+  };
+
+  const handleCompleteCheckout = () => {
+    if (!checkoutDetails.companyName || !checkoutDetails.contactEmail || !checkoutDetails.businessAddress) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
+    toast.success(`Purchase request submitted for ${getTotalItems()} data items (${getTotalCost()} coins). This is a demo - no actual transaction was processed.`);
+    setCart([]);
+    setShowCheckout(false);
+    setShowCart(false);
+    setCheckoutDetails({ companyName: "", contactEmail: "", businessAddress: "" });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -178,9 +263,24 @@ const BuyerDashboard = () => {
                 <p className="text-sm text-muted-foreground">Browse and purchase available data</p>
               </div>
             </div>
-            <Button onClick={handleLogout} variant="outline">
-              Logout
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button 
+                onClick={() => setShowCart(true)} 
+                variant="outline"
+                className="relative"
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Cart
+                {cart.length > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0">
+                    {getTotalItems()}
+                  </Badge>
+                )}
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -268,9 +368,11 @@ const BuyerDashboard = () => {
                       <TableCell className="text-right">
                         <Button 
                           size="sm" 
-                          onClick={() => toast.info("Purchase functionality coming soon!")}
+                          onClick={() => addToCart(listing)}
+                          disabled={listing.averagePrice === 0}
                         >
-                          View Details
+                          <ShoppingCart className="h-4 w-4 mr-1" />
+                          Add to Cart
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -331,6 +433,194 @@ const BuyerDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Shopping Cart Dialog */}
+      <Dialog open={showCart} onOpenChange={setShowCart}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5 text-primary" />
+              Shopping Cart
+            </DialogTitle>
+            <DialogDescription>
+              Review your selected data items before checkout
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {cart.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                Your cart is empty
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {cart.map((item) => (
+                    <Card key={item.dataType} className="border-border">
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-foreground">{item.dataType}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {item.pricePerUnit} coins per unit
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateQuantity(item.dataType, item.quantity - 1)}
+                              >
+                                -
+                              </Button>
+                              <span className="w-12 text-center font-medium">{item.quantity}</span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => updateQuantity(item.dataType, item.quantity + 1)}
+                              >
+                                +
+                              </Button>
+                            </div>
+                            <div className="text-right min-w-[80px]">
+                              <p className="font-semibold text-primary">
+                                {item.quantity * item.pricePerUnit} coins
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => removeFromCart(item.dataType)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Cost Breakdown */}
+                <Card className="bg-muted/50 border-border">
+                  <CardContent className="pt-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal ({getTotalItems()} items)</span>
+                        <span className="font-medium">{getTotalCost()} coins</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Processing Fee</span>
+                        <span className="font-medium">0 coins</span>
+                      </div>
+                      <div className="border-t border-border pt-2 mt-2">
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-foreground">Total</span>
+                          <span className="text-xl font-bold text-primary">{getTotalCost()} coins</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCart(false)}>
+              Continue Shopping
+            </Button>
+            <Button onClick={handleCheckout} disabled={cart.length === 0}>
+              <CreditCard className="h-4 w-4 mr-2" />
+              Proceed to Checkout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Checkout Dialog */}
+      <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary" />
+              Complete Purchase
+            </DialogTitle>
+            <DialogDescription>
+              Enter your business details to complete the purchase
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Purchase Summary */}
+            <Card className="bg-muted/50 border-border">
+              <CardContent className="pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Total Items</span>
+                    <span className="font-semibold text-foreground">{getTotalItems()}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border/50">
+                    <span className="text-sm text-muted-foreground">Total Cost</span>
+                    <span className="text-lg font-bold text-primary">{getTotalCost()} coins</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Business Details */}
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input
+                  id="companyName"
+                  placeholder="Acme Corp"
+                  value={checkoutDetails.companyName}
+                  onChange={(e) => setCheckoutDetails({ ...checkoutDetails, companyName: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  placeholder="buyer@company.com"
+                  value={checkoutDetails.contactEmail}
+                  onChange={(e) => setCheckoutDetails({ ...checkoutDetails, contactEmail: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="businessAddress">Business Address</Label>
+                <Input
+                  id="businessAddress"
+                  placeholder="123 Business St, City, Country"
+                  value={checkoutDetails.businessAddress}
+                  onChange={(e) => setCheckoutDetails({ ...checkoutDetails, businessAddress: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Demo Notice */}
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground">
+                ℹ️ This is a demo purchase. No actual transaction will be processed.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCheckout(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCompleteCheckout}>
+              Complete Purchase
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
