@@ -122,28 +122,75 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
             <CardContent>
               <div className="flex items-center justify-center p-8 bg-gradient-overlay rounded-xl">
                 <div className="relative flex flex-col items-center gap-4">
-                  {/* 3D-like character representation matching the game */}
+                  {/* Roblox-style character representation */}
                   <div className="relative" style={{ transform: 'perspective(500px) rotateY(-15deg)' }}>
-                    {/* Head */}
+                    {/* Head - cubic block */}
                     <div 
-                      className="w-20 h-20 rounded-full mx-auto border-4 border-border shadow-lg"
+                      className="w-16 h-16 mx-auto border-2 border-border shadow-lg"
                       style={{ 
                         backgroundColor: characterData.skin_color,
                         transform: 'translateZ(20px)'
                       }}
                     />
                     
-                    {/* Body */}
+                    {/* Torso - rectangular block */}
                     <div 
-                      className="mt-2 rounded-lg border-4 border-border shadow-xl"
+                      className="mt-1 border-2 border-border shadow-xl relative"
                       style={{ 
                         backgroundColor: characterData.body_color,
-                        width: `${80 * characterData.width}px`,
-                        height: `${120 * characterData.height}px`,
-                        margin: '8px auto 0',
+                        width: `${60 * characterData.width}px`,
+                        height: `${90 * characterData.height}px`,
+                        margin: '4px auto 0',
                         transform: 'translateZ(10px)'
                       }}
-                    />
+                    >
+                      {/* Left Arm */}
+                      <div 
+                        className="absolute border border-border/50"
+                        style={{
+                          backgroundColor: characterData.skin_color,
+                          width: '14px',
+                          height: '60px',
+                          left: '-16px',
+                          top: '4px',
+                          transform: 'translateZ(5px)'
+                        }}
+                      />
+                      {/* Right Arm */}
+                      <div 
+                        className="absolute border border-border/50"
+                        style={{
+                          backgroundColor: characterData.skin_color,
+                          width: '14px',
+                          height: '60px',
+                          right: '-16px',
+                          top: '4px',
+                          transform: 'translateZ(5px)'
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Legs */}
+                    <div className="flex gap-1 justify-center mt-1">
+                      <div 
+                        className="border border-border/50"
+                        style={{
+                          backgroundColor: characterData.body_color,
+                          width: '18px',
+                          height: `${50 * characterData.height}px`,
+                          transform: 'translateZ(5px)'
+                        }}
+                      />
+                      <div 
+                        className="border border-border/50"
+                        style={{
+                          backgroundColor: characterData.body_color,
+                          width: '18px',
+                          height: `${50 * characterData.height}px`,
+                          transform: 'translateZ(5px)'
+                        }}
+                      />
+                    </div>
                   </div>
                   
                   {/* Character stats */}

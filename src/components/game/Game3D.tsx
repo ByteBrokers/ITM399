@@ -667,21 +667,59 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     const bodyColor = parseInt(charData.body_color.replace("#", "0x"));
     const skinColor = parseInt(charData.skin_color.replace("#", "0x"));
 
-    const bodyGeometry = new THREE.CylinderGeometry(
-      charData.width,
-      charData.width,
-      3 * charData.height
+    // Torso (rectangular block)
+    const torsoGeometry = new THREE.BoxGeometry(
+      1.2 * charData.width,
+      1.8 * charData.height,
+      0.6 * charData.width
     );
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1.5 * charData.height;
-    player.add(body);
+    const torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+    torso.position.y = 1.8 * charData.height;
+    player.add(torso);
 
-    const headGeometry = new THREE.SphereGeometry(0.6 * charData.height);
+    // Head (cubic block)
+    const headGeometry = new THREE.BoxGeometry(
+      0.8 * charData.height,
+      0.8 * charData.height,
+      0.8 * charData.height
+    );
     const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 3.6 * charData.height;
+    head.position.y = 3.1 * charData.height;
     player.add(head);
+
+    // Left Arm
+    const armGeometry = new THREE.BoxGeometry(
+      0.4 * charData.width,
+      1.6 * charData.height,
+      0.4 * charData.width
+    );
+    const armMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
+    const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+    leftArm.position.set(-0.8 * charData.width, 1.8 * charData.height, 0);
+    player.add(leftArm);
+
+    // Right Arm
+    const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+    rightArm.position.set(0.8 * charData.width, 1.8 * charData.height, 0);
+    player.add(rightArm);
+
+    // Left Leg
+    const legGeometry = new THREE.BoxGeometry(
+      0.5 * charData.width,
+      1.4 * charData.height,
+      0.5 * charData.width
+    );
+    const legMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+    leftLeg.position.set(-0.35 * charData.width, 0.5 * charData.height, 0);
+    player.add(leftLeg);
+
+    // Right Leg
+    const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+    rightLeg.position.set(0.35 * charData.width, 0.5 * charData.height, 0);
+    player.add(rightLeg);
 
     return player;
   };

@@ -73,28 +73,59 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
   const createCharacter = () => {
     const character = new THREE.Group();
 
-    const bodyGeometry = new THREE.CylinderGeometry(0.8, 0.8, 3);
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1.5;
-    body.userData.type = "body";
-    character.add(body);
+    // Torso (rectangular block)
+    const torsoGeometry = new THREE.BoxGeometry(1.2, 1.8, 0.6);
+    const torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+    torso.position.y = 1.8;
+    torso.userData.type = "torso";
+    character.add(torso);
 
-    const headGeometry = new THREE.SphereGeometry(0.6);
+    // Head (cubic block)
+    const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
     const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 3.6;
+    head.position.y = 3.1;
     head.userData.type = "head";
     character.add(head);
 
-    const eyeGeometry = new THREE.SphereGeometry(0.1);
+    // Eyes
+    const eyeGeometry = new THREE.SphereGeometry(0.08);
     const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.2, 3.7, 0.5);
+    leftEye.position.set(-0.2, 3.15, 0.42);
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.2, 3.7, 0.5);
+    rightEye.position.set(0.2, 3.15, 0.42);
     character.add(leftEye);
     character.add(rightEye);
+
+    // Left Arm
+    const armGeometry = new THREE.BoxGeometry(0.4, 1.6, 0.4);
+    const armMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
+    const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+    leftArm.position.set(-0.8, 1.8, 0);
+    leftArm.userData.type = "arm";
+    character.add(leftArm);
+
+    // Right Arm
+    const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+    rightArm.position.set(0.8, 1.8, 0);
+    rightArm.userData.type = "arm";
+    character.add(rightArm);
+
+    // Left Leg
+    const legGeometry = new THREE.BoxGeometry(0.5, 1.4, 0.5);
+    const legMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+    const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+    leftLeg.position.set(-0.35, 0.5, 0);
+    leftLeg.userData.type = "leg";
+    character.add(leftLeg);
+
+    // Right Leg
+    const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+    rightLeg.position.set(0.35, 0.5, 0);
+    rightLeg.userData.type = "leg";
+    character.add(rightLeg);
 
     return character;
   };
@@ -103,9 +134,9 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
     if (characterRef.current) {
       characterRef.current.children.forEach((child) => {
         if (child instanceof THREE.Mesh) {
-          if (child.userData.type === "body") {
+          if (child.userData.type === "torso" || child.userData.type === "leg") {
             child.material.color.setHex(parseInt(bodyColor.replace("#", "0x")));
-          } else if (child.userData.type === "head") {
+          } else if (child.userData.type === "head" || child.userData.type === "arm") {
             child.material.color.setHex(parseInt(skinColor.replace("#", "0x")));
           }
         }
