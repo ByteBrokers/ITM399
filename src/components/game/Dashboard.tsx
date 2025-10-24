@@ -698,22 +698,21 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="max-h-[450px] overflow-auto">
                 {salesByDataType.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={350}>
                     <PieChart>
                       <Pie
                         data={salesByDataType}
                         cx="50%"
-                        cy="45%"
-                        labelLine={true}
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        cy="40%"
+                        labelLine={false}
+                        label={false}
                         outerRadius={80}
                         fill="hsl(var(--primary))"
                         dataKey="value"
                         stroke="hsl(var(--background))"
                         strokeWidth={2}
-                        style={{ fontSize: '11px' }}
                       >
                         {salesByDataType.map((entry, index) => {
                           const colors = [
@@ -742,18 +741,22 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                         }}
                         labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
-                        formatter={(value) => [`${value} coins`, 'Revenue']}
+                        formatter={(value, name) => [`${value} coins`, name]}
                       />
                       <Legend 
                         verticalAlign="bottom" 
-                        height={50}
-                        wrapperStyle={{ paddingTop: '20px' }}
-                        formatter={(value) => <span style={{ color: "hsl(var(--foreground))", fontSize: '12px' }}>{value}</span>}
+                        height={80}
+                        wrapperStyle={{ 
+                          paddingTop: '20px',
+                          maxHeight: '80px',
+                          overflowY: 'auto'
+                        }}
+                        formatter={(value) => <span style={{ color: "hsl(var(--foreground))", fontSize: '11px' }}>{value}</span>}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
                     No sales data yet
                   </div>
                 )}
