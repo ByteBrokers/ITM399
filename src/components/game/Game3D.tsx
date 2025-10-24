@@ -823,6 +823,11 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
         playerRef.current.position.x += speed;
       }
 
+      // Boundary collision - keep player inside the wooden fence
+      const boundaryLimit = 73; // Slightly inside the fence at 75
+      playerRef.current.position.x = Math.max(-boundaryLimit, Math.min(boundaryLimit, playerRef.current.position.x));
+      playerRef.current.position.z = Math.max(-boundaryLimit, Math.min(boundaryLimit, playerRef.current.position.z));
+
       cameraRef.current.position.x = playerRef.current.position.x;
       cameraRef.current.position.z = playerRef.current.position.z + 20;
       
