@@ -42,56 +42,56 @@ const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard, onOpenW
           <Button 
             onClick={onGoHome} 
             variant="outline" 
-            size="icon"
-            className="h-9 w-full"
-            title="Home"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <Home className="h-4 w-4" />
+            <span className="text-[10px]">Home</span>
           </Button>
           <Button 
             onClick={onOpenDashboard} 
             variant="outline" 
-            size="icon"
-            className="h-9 w-full"
-            title="Dashboard"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <BarChart3 className="h-4 w-4" />
+            <span className="text-[10px]">Dashboard</span>
           </Button>
           <Button 
             onClick={onEditCharacter} 
             variant="outline" 
-            size="icon"
-            className="h-9 w-full"
-            title="Edit Character"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <UserPen className="h-4 w-4" />
+            <span className="text-[10px]">Character</span>
           </Button>
           <Button 
             onClick={onUpdateInfo}
             variant="outline" 
-            size="icon"
-            className="h-9 w-full"
-            title="Update Information"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <FileText className="h-4 w-4" />
+            <span className="text-[10px]">Update</span>
           </Button>
           <Button 
             onClick={onOpenWithdraw}
             variant="outline" 
-            size="icon"
-            className="h-9 w-full"
-            title="Withdraw"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <Wallet className="h-4 w-4" />
+            <span className="text-[10px]">Withdraw</span>
           </Button>
           <Button 
             onClick={onLogout} 
             variant="destructive" 
-            size="icon"
-            className="h-9 w-full"
-            title="Logout"
+            size="sm"
+            className="h-auto w-full flex flex-col gap-1 py-2"
           >
             <LogOut className="h-4 w-4" />
+            <span className="text-[10px]">Logout</span>
           </Button>
         </div>
       </div>
