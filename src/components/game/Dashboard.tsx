@@ -8,8 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from "recharts";
-import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package, Trophy } from "lucide-react";
+import { X, TrendingUp, Calendar, Coins, Edit, Wallet, FileText, Building2, Package, Trophy, DollarSign } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import type { CharacterCustomizationData, QuestionnaireData, Company, DataType } from "@/types/game";
 
@@ -82,6 +83,13 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
   const [salesByDataType, setSalesByDataType] = useState<DataTypeData[]>([]);
   const [currentInventory, setCurrentInventory] = useState<CurrentInventoryItem[]>([]);
   const [showQuestionnaireEditor, setShowQuestionnaireEditor] = useState(false);
+  const [showWithdrawalDialog, setShowWithdrawalDialog] = useState(false);
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [withdrawalDetails, setWithdrawalDetails] = useState({
+    fullName: "",
+    bankAccount: "",
+    email: "",
+  });
   const [questionnaireData, setQuestionnaireData] = useState<QuestionnaireData>({
     name: "",
     age: "",
@@ -323,6 +331,27 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
     }
   };
 
+  const handleWithdrawal = () => {
+    if (!withdrawalAmount || parseFloat(withdrawalAmount) <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (!withdrawalDetails.fullName || !withdrawalDetails.bankAccount || !withdrawalDetails.email) {
+      toast.error("Please fill in all details");
+      return;
+    }
+    if (parseFloat(withdrawalAmount) > totalEarnings) {
+      toast.error("Insufficient balance");
+      return;
+    }
+
+    // Mock withdrawal - just show success message
+    toast.success(`Withdrawal request submitted! You will receive ${withdrawalAmount} NZD to your account.`);
+    setShowWithdrawalDialog(false);
+    setWithdrawalAmount("");
+    setWithdrawalDetails({ fullName: "", bankAccount: "", email: "" });
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
@@ -494,7 +523,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                 <div className="text-2xl font-bold text-foreground">{totalEarnings}</div>
                 <p className="text-xs text-muted-foreground mt-1">All time revenue</p>
                 <Button 
-                  onClick={() => toast.info("This is a work in progress")}
+                  onClick={() => setShowWithdrawalDialog(true)}
                   size="sm" 
                   className="w-full mt-3"
                 >
@@ -1032,6 +1061,110 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
         </div>
       </div>
     )}
+
+    {/* Withdrawal Dialog */}
+    <Dialog open={showWithdrawalDialog} onOpenChange={setShowWithdrawalDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-primary" />
+            Withdraw Earnings
+          </DialogTitle>
+          <DialogDescription>
+            Convert your data coins to NZD and withdraw to your account
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Balance and Conversion Rate */}
+          <div className="space-y-2">
+            <Card className="bg-muted/50 border-border">
+              <CardContent className="pt-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Available Balance</span>
+                    <span className="text-lg font-bold text-foreground">{totalEarnings} coins</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border/50">
+                    <span className="text-xs text-muted-foreground">Conversion Rate</span>
+                    <span className="text-sm font-semibold text-primary">1 coin = 1 NZD</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Withdrawal Amount */}
+          <div className="space-y-2">
+            <Label htmlFor="amount">Withdrawal Amount (coins)</Label>
+            <Input
+              id="amount"
+              type="number"
+              placeholder="Enter amount"
+              value={withdrawalAmount}
+              onChange={(e) => setWithdrawalAmount(e.target.value)}
+              max={totalEarnings}
+              min="1"
+            />
+            {withdrawalAmount && (
+              <p className="text-sm text-muted-foreground">
+                You will receive: <span className="font-semibold text-primary">{withdrawalAmount} NZD</span>
+              </p>
+            )}
+          </div>
+
+          {/* Personal Details */}
+          <div className="space-y-3 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                placeholder="John Doe"
+                value={withdrawalDetails.fullName}
+                onChange={(e) => setWithdrawalDetails({ ...withdrawalDetails, fullName: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bankAccount">Bank Account Number</Label>
+              <Input
+                id="bankAccount"
+                placeholder="00-0000-0000000-00"
+                value={withdrawalDetails.bankAccount}
+                onChange={(e) => setWithdrawalDetails({ ...withdrawalDetails, bankAccount: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="john@example.com"
+                value={withdrawalDetails.email}
+                onChange={(e) => setWithdrawalDetails({ ...withdrawalDetails, email: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Info Notice */}
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">
+              ℹ️ This is a demo withdrawal. No actual transaction will be processed.
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowWithdrawalDialog(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleWithdrawal}>
+            Submit Withdrawal Request
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   );
 };
