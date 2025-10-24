@@ -475,6 +475,12 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
             </CardContent>
           </Card>
 
+          {/* Summary Section */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Overview</h3>
+            <p className="text-sm text-muted-foreground">Key metrics and account statistics</p>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="border-border">
@@ -523,6 +529,12 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                 <p className="text-xs text-muted-foreground mt-1">Days active</p>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Performance Section */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Performance</h3>
+            <p className="text-sm text-muted-foreground">Track your earnings over time</p>
           </div>
 
           {/* Earnings Chart */}
@@ -576,6 +588,12 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
               )}
             </CardContent>
           </Card>
+
+          {/* Sales Analytics Section */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Sales Analytics</h3>
+            <p className="text-sm text-muted-foreground">Breakdown by company and data category</p>
+          </div>
 
           {/* Sales by Company and Data Type */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -705,6 +723,12 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                 )}
               </CardContent>
             </Card>
+          </div>
+
+          {/* Inventory Section */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">Your Inventory</h3>
+            <p className="text-sm text-muted-foreground">Current data available and potential earnings</p>
           </div>
 
           {/* Top Earners Leaderboard */}
