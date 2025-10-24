@@ -17,7 +17,7 @@ const Index = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 w-full max-w-6xl mx-auto">
         {/* Logo and Header */}
         <div className="text-center mb-12 space-y-4">
           <img 
@@ -34,7 +34,7 @@ const Index = () => {
         </div>
 
         {/* Choice Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto w-full">
         {/* Seller Card */}
         <Card className="border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl cursor-pointer group backdrop-blur-sm bg-card/95">
           <CardHeader className="text-center pb-4">
@@ -118,7 +118,7 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <p className="relative z-10 text-sm text-muted-foreground mt-12 text-center max-w-2xl">
+      <p className="text-sm text-muted-foreground mt-12 text-center max-w-2xl mx-auto">
         ByteBrokers connects data sellers and buyers in a transparent marketplace. 
         Your privacy and security are our top priorities.
       </p>
