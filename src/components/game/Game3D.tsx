@@ -1126,7 +1126,7 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
         </div>
       )}
       {showQuestionnaireEditor && (
-        <div className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-xl flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border p-6 flex justify-between items-center">
               <h2 className="text-2xl font-bold text-foreground">Update Your Information</h2>
