@@ -674,7 +674,26 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter, openWithdr
                         }}
                         labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
                       />
-                      <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                        {salesByCompany.map((entry, index) => {
+                          const colors = [
+                            '#3b82f6', // blue
+                            '#8b5cf6', // purple
+                            '#ec4899', // pink
+                            '#f59e0b', // amber
+                            '#10b981', // emerald
+                            '#06b6d4', // cyan
+                            '#f97316', // orange
+                            '#6366f1', // indigo
+                          ];
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={colors[index % colors.length]}
+                            />
+                          );
+                        })}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
