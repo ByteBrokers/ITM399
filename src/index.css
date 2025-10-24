@@ -8,80 +8,91 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Purple gradient theme inspired by data marketplace */
+    /* Professional design system inspired by Apple HIG */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 258 80% 65%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 264 76% 75%;
+    --primary-glow: 221 83% 63%;
 
-    --secondary: 271 51% 51%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 5.9% 10%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 264 76% 75%;
-    --accent-foreground: 258 90% 8%;
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 258 80% 65%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 221 83% 53%;
 
     --radius: 0.75rem;
     
-    /* Custom design tokens for game */
-    --gradient-primary: linear-gradient(135deg, hsl(258 80% 65%), hsl(271 51% 51%));
-    --gradient-success: linear-gradient(45deg, hsl(258 80% 65%), hsl(264 76% 75%));
-    --gradient-secondary: linear-gradient(45deg, hsl(210 40% 58%), hsl(209 34% 48%));
+    /* Professional design tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(221 83% 63%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(240 4.8% 95.9%));
+    --gradient-overlay: linear-gradient(135deg, hsl(221 83% 53% / 0.05), hsl(221 83% 63% / 0.1));
     
-    --shadow-glow: 0 0 40px hsl(258 80% 65% / 0.4);
-    --shadow-elevated: 0 20px 40px hsl(0 0% 0% / 0.3);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
-    --background: 258 90% 8%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
-    --card: 258 50% 12%;
+    --card: 240 10% 7%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 258 50% 12%;
+    --popover: 240 10% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 258 80% 65%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 264 76% 75%;
+    --primary-glow: 221 83% 63%;
 
-    --secondary: 258 30% 20%;
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 258 30% 20%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 264 76% 75%;
+    --accent: 221 83% 53%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 258 30% 20%;
-    --input: 258 30% 20%;
-    --ring: 258 80% 65%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 221 83% 53%;
+    
+    --gradient-subtle: linear-gradient(180deg, hsl(240 10% 3.9%), hsl(240 10% 7%));
+    --gradient-overlay: linear-gradient(135deg, hsl(221 83% 53% / 0.1), hsl(221 83% 63% / 0.15));
+    
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.8);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.8), 0 2px 4px -2px hsl(0 0% 0% / 0.8);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.8), 0 4px 6px -4px hsl(0 0% 0% / 0.8);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.8), 0 8px 10px -6px hsl(0 0% 0% / 0.8);
   }
 }
 

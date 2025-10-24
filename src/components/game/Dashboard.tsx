@@ -98,35 +98,35 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-background/95 backdrop-blur-lg rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-border">
-        <div className="sticky top-0 bg-background/95 backdrop-blur-lg border-b border-border p-6 flex justify-between items-center">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-xl flex items-center justify-center p-4">
+      <div className="bg-card border border-border rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-card/95 backdrop-blur-xl border-b border-border p-6 flex justify-between items-center">
+          <h2 className="text-2xl font-bold text-foreground">
             Analytics Dashboard
           </h2>
-          <Button onClick={onClose} variant="ghost" size="icon">
-            <X className="h-6 w-6" />
+          <Button onClick={onClose} variant="ghost" size="icon" className="rounded-full">
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
         <div className="p-6 space-y-6">
           {/* Character Preview */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Your Character</CardTitle>
-              <Button onClick={onEditCharacter} size="sm" variant="outline">
+          <Card className="border-border">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-lg font-semibold">Your Character</CardTitle>
+              <Button onClick={onEditCharacter} size="sm" variant="outline" className="rounded-lg">
                 <Edit className="h-4 w-4 mr-2" />
-                Edit Character
+                Edit
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
+              <div className="flex items-center justify-center p-8 bg-gradient-overlay rounded-xl">
                 <div className="relative flex flex-col items-center gap-4">
                   {/* 3D-like character representation matching the game */}
                   <div className="relative" style={{ transform: 'perspective(500px) rotateY(-15deg)' }}>
                     {/* Head */}
                     <div 
-                      className="w-20 h-20 rounded-full mx-auto border-4 border-black/20 shadow-lg"
+                      className="w-20 h-20 rounded-full mx-auto border-4 border-border shadow-lg"
                       style={{ 
                         backgroundColor: characterData.skin_color,
                         transform: 'translateZ(20px)'
@@ -135,7 +135,7 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                     
                     {/* Body */}
                     <div 
-                      className="mt-2 rounded-lg border-4 border-black/20 shadow-xl"
+                      className="mt-2 rounded-lg border-4 border-border shadow-xl"
                       style={{ 
                         backgroundColor: characterData.body_color,
                         width: `${80 * characterData.width}px`,
@@ -147,24 +147,24 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                   </div>
                   
                   {/* Character stats */}
-                  <div className="text-center space-y-1 mt-4">
-                    <div className="text-sm font-semibold text-muted-foreground">
-                      Height: {characterData.height.toFixed(1)}x | Width: {characterData.width.toFixed(1)}x
+                  <div className="text-center space-y-2 mt-4">
+                    <div className="text-sm font-medium text-muted-foreground">
+                      Height: {characterData.height.toFixed(1)}x · Width: {characterData.width.toFixed(1)}x
                     </div>
-                    <div className="flex gap-3 justify-center text-xs">
-                      <div className="flex items-center gap-1">
+                    <div className="flex gap-3 justify-center">
+                      <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
                         <div 
-                          className="w-4 h-4 rounded border border-border"
+                          className="w-4 h-4 rounded border border-border shadow-sm"
                           style={{ backgroundColor: characterData.body_color }}
                         />
-                        <span className="text-muted-foreground">Body</span>
+                        <span className="text-xs font-medium text-foreground">Body</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-lg">
                         <div 
-                          className="w-4 h-4 rounded-full border border-border"
+                          className="w-4 h-4 rounded-full border border-border shadow-sm"
                           style={{ backgroundColor: characterData.skin_color }}
                         />
-                        <span className="text-muted-foreground">Skin</span>
+                        <span className="text-xs font-medium text-foreground">Skin</span>
                       </div>
                     </div>
                   </div>
@@ -175,78 +175,93 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-                <Coins className="h-4 w-4 text-accent" />
+            <Card className="border-border">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Earnings</CardTitle>
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Coins className="h-4 w-4 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalEarnings} coins</div>
-                <p className="text-xs text-muted-foreground">All time revenue</p>
+                <div className="text-2xl font-bold text-foreground">{totalEarnings}</div>
+                <p className="text-xs text-muted-foreground mt-1">All time revenue</p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Monthly Earnings</CardTitle>
-                <TrendingUp className="h-4 w-4 text-accent" />
+            <Card className="border-border">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Earnings</CardTitle>
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{monthlyEarnings} coins</div>
-                <p className="text-xs text-muted-foreground">Last 30 days</p>
+                <div className="text-2xl font-bold text-foreground">{monthlyEarnings}</div>
+                <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Account Age</CardTitle>
-                <Calendar className="h-4 w-4 text-accent" />
+            <Card className="border-border">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Account Age</CardTitle>
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Calendar className="h-4 w-4 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{daysSinceJoining} days</div>
-                <p className="text-xs text-muted-foreground">Since joining</p>
+                <div className="text-2xl font-bold text-foreground">{daysSinceJoining}</div>
+                <p className="text-xs text-muted-foreground mt-1">Days active</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Earnings Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Earnings Over Time (Last 7 Days)</CardTitle>
+          <Card className="border-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold">Earnings Trend</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Last 7 days performance</p>
             </CardHeader>
             <CardContent>
               {earningsOverTime.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={earningsOverTime}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                     <XAxis 
                       dataKey="date" 
                       stroke="hsl(var(--muted-foreground))"
-                      fontSize={12}
+                      fontSize={11}
+                      tickMargin={8}
                     />
                     <YAxis 
                       stroke="hsl(var(--muted-foreground))"
-                      fontSize={12}
+                      fontSize={11}
+                      tickMargin={8}
                     />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: "hsl(var(--popover))",
+                        backgroundColor: "hsl(var(--card))",
                         border: "1px solid hsl(var(--border))",
-                        borderRadius: "0.5rem",
+                        borderRadius: "0.75rem",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       }}
+                      labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="amount" 
-                      stroke="hsl(var(--accent))" 
-                      strokeWidth={2}
-                      dot={{ fill: "hsl(var(--accent))" }}
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  No earnings data available yet. Start selling data to see your progress!
+                <div className="h-[300px] flex items-center justify-center">
+                  <div className="text-center space-y-2">
+                    <div className="text-muted-foreground">No earnings data yet</div>
+                    <p className="text-sm text-muted-foreground">Start selling data to track your progress</p>
+                  </div>
                 </div>
               )}
             </CardContent>

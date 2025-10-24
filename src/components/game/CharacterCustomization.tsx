@@ -129,41 +129,47 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 to-slate-900 flex">
-      <div className="w-80 bg-black/80 backdrop-blur-lg p-6 overflow-y-auto">
-        <h2 className="text-2xl font-bold text-white mb-6">🎨 Customize Your Avatar</h2>
+    <div className="min-h-screen bg-gradient-subtle flex">
+      <div className="w-80 bg-card border-r border-border p-6 overflow-y-auto shadow-xl">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Customize Avatar</h2>
+          <p className="text-sm text-muted-foreground">Personalize your character appearance</p>
+        </div>
 
         <div className="space-y-6">
-          <div>
-            <Label htmlFor="bodyColor" className="text-white">
-              Body Color:
+          <div className="space-y-2">
+            <Label htmlFor="bodyColor" className="text-sm font-medium text-foreground">
+              Body Color
             </Label>
             <input
               type="color"
               id="bodyColor"
               value={bodyColor}
               onChange={(e) => setBodyColor(e.target.value)}
-              className="w-full h-12 rounded-lg cursor-pointer border-none"
+              className="w-full h-12 rounded-lg cursor-pointer border border-border"
             />
           </div>
 
-          <div>
-            <Label htmlFor="skinColor" className="text-white">
-              Skin Color:
+          <div className="space-y-2">
+            <Label htmlFor="skinColor" className="text-sm font-medium text-foreground">
+              Skin Color
             </Label>
             <input
               type="color"
               id="skinColor"
               value={skinColor}
               onChange={(e) => setSkinColor(e.target.value)}
-              className="w-full h-12 rounded-lg cursor-pointer border-none"
+              className="w-full h-12 rounded-lg cursor-pointer border border-border"
             />
           </div>
 
-          <div>
-            <Label htmlFor="height" className="text-white">
-              Character Height: {height.toFixed(1)}
-            </Label>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="height" className="text-sm font-medium text-foreground">
+                Height
+              </Label>
+              <span className="text-sm font-semibold text-primary">{height.toFixed(1)}x</span>
+            </div>
             <input
               type="range"
               id="height"
@@ -176,10 +182,13 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
             />
           </div>
 
-          <div>
-            <Label htmlFor="width" className="text-white">
-              Character Width: {width.toFixed(1)}
-            </Label>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <Label htmlFor="width" className="text-sm font-medium text-foreground">
+                Width
+              </Label>
+              <span className="text-sm font-semibold text-primary">{width.toFixed(1)}x</span>
+            </div>
             <input
               type="range"
               id="width"
@@ -192,13 +201,13 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
             />
           </div>
 
-          <Button onClick={handleSubmit} className="w-full bg-gradient-primary mt-8">
-            Enter Data World! →
+          <Button onClick={handleSubmit} className="w-full mt-8 h-12 text-base font-semibold">
+            Enter Game →
           </Button>
         </div>
       </div>
 
-      <div ref={containerRef} className="flex-1 flex items-center justify-center" />
+      <div ref={containerRef} className="flex-1 flex items-center justify-center bg-muted/30" />
     </div>
   );
 };

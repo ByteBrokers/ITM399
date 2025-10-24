@@ -12,31 +12,60 @@ interface GameUIProps {
 const GameUI = ({ gameState, onLogout, onEditCharacter, onOpenDashboard }: GameUIProps) => {
   return (
     <>
-      <div className="absolute top-5 left-5 bg-black/80 backdrop-blur-lg text-white p-4 rounded-lg">
-        <h3 className="font-bold mb-2">💰 Data Coins: {gameState.coins}</h3>
-        <div>Level: {gameState.level}</div>
-        <div>Experience: {gameState.exp}</div>
-        <div className="flex gap-2 mt-2">
-          <Button onClick={onOpenDashboard} variant="secondary" size="sm">
-            <BarChart3 className="h-4 w-4 mr-1" />
+      <div className="absolute top-6 left-6 bg-card/90 backdrop-blur-xl border border-border shadow-xl rounded-xl p-5 min-w-[240px]">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-xl">
+            💰
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground font-medium">Data Coins</div>
+            <div className="text-2xl font-bold text-foreground">{gameState.coins}</div>
+          </div>
+        </div>
+        
+        <div className="space-y-2 mb-4 pb-4 border-b border-border">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Level</span>
+            <span className="text-sm font-semibold text-foreground">{gameState.level}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Experience</span>
+            <span className="text-sm font-semibold text-foreground">{gameState.exp}</span>
+          </div>
+        </div>
+        
+        <div className="flex flex-col gap-2">
+          <Button onClick={onOpenDashboard} variant="outline" size="sm" className="w-full justify-start">
+            <BarChart3 className="h-4 w-4 mr-2" />
             Dashboard
           </Button>
-          <Button onClick={onEditCharacter} variant="secondary" size="sm">
-            <UserPen className="h-4 w-4 mr-1" />
-            Edit
+          <Button onClick={onEditCharacter} variant="outline" size="sm" className="w-full justify-start">
+            <UserPen className="h-4 w-4 mr-2" />
+            Edit Character
           </Button>
-          <Button onClick={onLogout} variant="destructive" size="sm">
-            <LogOut className="h-4 w-4 mr-1" />
+          <Button onClick={onLogout} variant="destructive" size="sm" className="w-full justify-start">
+            <LogOut className="h-4 w-4 mr-2" />
             Logout
           </Button>
         </div>
       </div>
 
-      <div className="absolute bottom-5 left-5 bg-black/80 backdrop-blur-lg text-white p-4 rounded-lg">
-        <div className="font-bold mb-2">Controls:</div>
-        <div>⬆️⬇️⬅️➡️ Arrow Keys - Move</div>
-        <div>🖱️ Mouse - Navigate camera view</div>
-        <div>💼 Walk to buildings to sell data</div>
+      <div className="absolute bottom-6 left-6 bg-card/90 backdrop-blur-xl border border-border shadow-xl rounded-xl p-5 max-w-[280px]">
+        <div className="text-sm font-semibold text-foreground mb-3">Controls</div>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">↑↓←→</span>
+            <span>Move character</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">🖱️</span>
+            <span>Navigate camera</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs bg-muted px-2 py-1 rounded">💼</span>
+            <span>Approach buildings</span>
+          </div>
+        </div>
       </div>
     </>
   );
