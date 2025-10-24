@@ -90,14 +90,28 @@ const CharacterCustomization = ({ onComplete, initialData }: CharacterCustomizat
     character.add(head);
 
     // Eyes
-    const eyeGeometry = new THREE.SphereGeometry(0.08);
+    const eyeGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.05);
     const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.2, 3.15, 0.42);
-    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.2, 3.15, 0.42);
+    leftEye.position.set(-0.2, 3.15, 0.45);
     character.add(leftEye);
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.2, 3.15, 0.45);
     character.add(rightEye);
+
+    // Mouth
+    const mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+    const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+    const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+    mouth.position.set(0, 2.85, 0.45);
+    character.add(mouth);
+
+    // Hair (blocky top)
+    const hairGeometry = new THREE.BoxGeometry(0.85, 0.3, 0.85);
+    const hairMaterial = new THREE.MeshLambertMaterial({ color: 0x2c1810 });
+    const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+    hair.position.y = 3.55;
+    character.add(hair);
 
     // Left Arm
     const armGeometry = new THREE.BoxGeometry(0.4, 1.6, 0.4);

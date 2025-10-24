@@ -124,14 +124,32 @@ const Dashboard = ({ userId, characterData, onClose, onEditCharacter }: Dashboar
                 <div className="relative flex flex-col items-center gap-4">
                   {/* Roblox-style character representation */}
                   <div className="relative" style={{ transform: 'perspective(500px) rotateY(-15deg)' }}>
+                    {/* Hair - on top of head */}
+                    <div 
+                      className="w-17 h-6 mx-auto border border-border/50 shadow-md"
+                      style={{ 
+                        backgroundColor: '#2c1810',
+                        transform: 'translateZ(22px) translateY(-2px)',
+                        marginBottom: '-2px'
+                      }}
+                    />
+                    
                     {/* Head - cubic block */}
                     <div 
-                      className="w-16 h-16 mx-auto border-2 border-border shadow-lg"
+                      className="w-16 h-16 mx-auto border-2 border-border shadow-lg relative"
                       style={{ 
                         backgroundColor: characterData.skin_color,
                         transform: 'translateZ(20px)'
                       }}
-                    />
+                    >
+                      {/* Eyes */}
+                      <div className="absolute flex gap-4 top-4 left-1/2 -translate-x-1/2">
+                        <div className="w-2.5 h-2.5 bg-black" />
+                        <div className="w-2.5 h-2.5 bg-black" />
+                      </div>
+                      {/* Mouth */}
+                      <div className="absolute w-5 h-1.5 bg-black bottom-3 left-1/2 -translate-x-1/2" />
+                    </div>
                     
                     {/* Torso - rectangular block */}
                     <div 

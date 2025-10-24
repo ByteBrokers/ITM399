@@ -288,32 +288,32 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       opacity: 0.9 
     });
 
-    // Create multiple clouds at different positions
+    // Create multiple clouds at different positions - lower and bigger
     const cloudPositions = [
-      { x: -40, y: 60, z: -30 },
-      { x: 30, y: 55, z: -40 },
-      { x: -20, y: 65, z: 40 },
-      { x: 50, y: 58, z: 20 },
-      { x: 0, y: 70, z: -60 },
-      { x: -50, y: 62, z: 30 },
-      { x: 40, y: 68, z: -20 },
-      { x: -30, y: 56, z: -50 },
-      { x: 20, y: 64, z: 50 },
-      { x: 60, y: 60, z: -10 },
+      { x: -40, y: 35, z: -30 },
+      { x: 30, y: 30, z: -40 },
+      { x: -20, y: 40, z: 40 },
+      { x: 50, y: 33, z: 20 },
+      { x: 0, y: 45, z: -60 },
+      { x: -50, y: 37, z: 30 },
+      { x: 40, y: 43, z: -20 },
+      { x: -30, y: 31, z: -50 },
+      { x: 20, y: 39, z: 50 },
+      { x: 60, y: 35, z: -10 },
     ];
 
     cloudPositions.forEach(pos => {
       const cloud = new THREE.Group();
       
-      // Create cloud from multiple spheres for a fluffy look
-      const sphereGeometry = new THREE.SphereGeometry(3, 8, 8);
+      // Create cloud from multiple spheres for a fluffy look - bigger spheres
+      const sphereGeometry = new THREE.SphereGeometry(5, 8, 8);
       
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         const sphere = new THREE.Mesh(sphereGeometry, cloudMaterial);
-        const offsetX = (Math.random() - 0.5) * 6;
-        const offsetY = (Math.random() - 0.5) * 2;
-        const offsetZ = (Math.random() - 0.5) * 4;
-        const scale = 0.7 + Math.random() * 0.6;
+        const offsetX = (Math.random() - 0.5) * 10;
+        const offsetY = (Math.random() - 0.5) * 4;
+        const offsetZ = (Math.random() - 0.5) * 8;
+        const scale = 0.8 + Math.random() * 0.8;
         
         sphere.position.set(offsetX, offsetY, offsetZ);
         sphere.scale.set(scale, scale * 0.7, scale);
@@ -553,26 +553,79 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
       scene.add(logoMesh);
     });
 
-    // Create animated NPCs (people walking around) - scaled to realistic size
+    // Create animated NPCs (people walking around) - Roblox-style characters
     for (let i = 0; i < 15; i++) {
       const npc = new THREE.Group();
       
-      // Body - scaled up to be proportionate
-      const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.6, 2.5, 8);
       const bodyColors = [0x1e40af, 0x7c3aed, 0x059669, 0xdc2626, 0xf59e0b];
-      const bodyMaterial = new THREE.MeshLambertMaterial({ 
-        color: bodyColors[Math.floor(Math.random() * bodyColors.length)] 
-      });
-      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.position.y = 1.25; // Adjusted so body sits on ground
-      npc.add(body);
+      const skinColors = [0xffdbac, 0xd4a574, 0x8d5524, 0x4a2511, 0xffe0bd];
+      const bodyColor = bodyColors[Math.floor(Math.random() * bodyColors.length)];
+      const skinColor = skinColors[Math.floor(Math.random() * skinColors.length)];
       
-      // Head - scaled up proportionally
-      const headGeometry = new THREE.SphereGeometry(0.5, 8, 8);
-      const headMaterial = new THREE.MeshLambertMaterial({ color: 0xffdbac });
+      // Torso (rectangular block)
+      const torsoGeometry = new THREE.BoxGeometry(1.2, 1.8, 0.6);
+      const torsoMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+      const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+      torso.position.y = 1.8;
+      npc.add(torso);
+
+      // Head (cubic block)
+      const headGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+      const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
       const head = new THREE.Mesh(headGeometry, headMaterial);
-      head.position.y = 3; // Adjusted to sit on top of body
+      head.position.y = 3.1;
       npc.add(head);
+
+      // Eyes
+      const eyeGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.05);
+      const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+      const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+      leftEye.position.set(-0.2, 3.15, 0.45);
+      npc.add(leftEye);
+      const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+      rightEye.position.set(0.2, 3.15, 0.45);
+      npc.add(rightEye);
+
+      // Mouth
+      const mouthGeometry = new THREE.BoxGeometry(0.3, 0.08, 0.05);
+      const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+      const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+      mouth.position.set(0, 2.85, 0.45);
+      npc.add(mouth);
+
+      // Hair (blocky top)
+      const hairColors = [0x2c1810, 0xffd700, 0xff6347, 0x000000, 0x8b4513];
+      const hairGeometry = new THREE.BoxGeometry(0.85, 0.3, 0.85);
+      const hairMaterial = new THREE.MeshLambertMaterial({ 
+        color: hairColors[Math.floor(Math.random() * hairColors.length)] 
+      });
+      const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+      hair.position.y = 3.55;
+      npc.add(hair);
+
+      // Left Arm
+      const armGeometry = new THREE.BoxGeometry(0.4, 1.6, 0.4);
+      const armMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
+      const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+      leftArm.position.set(-0.8, 1.8, 0);
+      npc.add(leftArm);
+
+      // Right Arm
+      const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+      rightArm.position.set(0.8, 1.8, 0);
+      npc.add(rightArm);
+
+      // Left Leg
+      const legGeometry = new THREE.BoxGeometry(0.5, 1.4, 0.5);
+      const legMaterial = new THREE.MeshLambertMaterial({ color: bodyColor });
+      const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+      leftLeg.position.set(-0.35, 0.5, 0);
+      npc.add(leftLeg);
+
+      // Right Leg
+      const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+      rightLeg.position.set(0.35, 0.5, 0);
+      npc.add(rightLeg);
       
       // Random starting position
       npc.position.set(
@@ -688,6 +741,35 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout }: Game3DPro
     const head = new THREE.Mesh(headGeometry, headMaterial);
     head.position.y = 3.1 * charData.height;
     player.add(head);
+
+    // Eyes
+    const eyeGeometry = new THREE.BoxGeometry(0.15 * charData.height, 0.15 * charData.height, 0.05);
+    const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
+    player.add(leftEye);
+    
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.2 * charData.width, 3.15 * charData.height, 0.31 * charData.width);
+    player.add(rightEye);
+
+    // Mouth
+    const mouthGeometry = new THREE.BoxGeometry(0.3 * charData.height, 0.08 * charData.height, 0.05);
+    const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+    const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+    mouth.position.set(0, 2.85 * charData.height, 0.31 * charData.width);
+    player.add(mouth);
+
+    // Hair (blocky top)
+    const hairGeometry = new THREE.BoxGeometry(
+      0.85 * charData.height,
+      0.3 * charData.height,
+      0.85 * charData.height
+    );
+    const hairMaterial = new THREE.MeshLambertMaterial({ color: 0x2c1810 });
+    const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+    hair.position.y = 3.55 * charData.height;
+    player.add(hair);
 
     // Left Arm
     const armGeometry = new THREE.BoxGeometry(
