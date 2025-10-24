@@ -818,16 +818,16 @@ const Game3D = ({ characterData, initialGameState, userId, onLogout, onGoHome }:
       playerRef.current.position.x = Math.max(-boundaryLimit, Math.min(boundaryLimit, playerRef.current.position.x));
       playerRef.current.position.z = Math.max(-boundaryLimit, Math.min(boundaryLimit, playerRef.current.position.z));
 
-      // Camera follows player at a fixed angle
+      // Camera follows player at eye level (third-person)
       cameraRef.current.position.set(
         playerRef.current.position.x,
-        playerRef.current.position.y + 15,
-        playerRef.current.position.z + 20
+        playerRef.current.position.y + 6,
+        playerRef.current.position.z + 12
       );
       
       cameraRef.current.lookAt(
         playerRef.current.position.x,
-        playerRef.current.position.y,
+        playerRef.current.position.y + 3,
         playerRef.current.position.z
       );
 
